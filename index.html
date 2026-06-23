@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="es" id="html-root">
 <head>
@@ -35,7 +34,7 @@ body{
   display:flex;flex-direction:column;
   align-items:center;justify-content:center;
   touch-action:none;
-  transition:opacity 1.4s ease;
+  transition:opacity 2s cubic-bezier(0.4,0,0.2,1);
   overflow:hidden;
 }
 #torch-overlay.fade-out{opacity:0;pointer-events:none}
@@ -47,16 +46,16 @@ body{
   pointer-events:none;
 }
 
-/* vignette — edges always black, center opens where user touches */
+/* vignette — edges always dark, center breathes open on touch */
 #torch-vignette{
   position:absolute;inset:0;
   pointer-events:none;
   z-index:1;
-  background:radial-gradient(circle 160px at 50% 50%,
-    transparent 0%,
-    rgba(0,0,0,0.5) 60%,
-    rgba(0,0,0,0.95) 100%);
-  transition:background 0.08s linear;
+  background:radial-gradient(circle 200px at 50% 50%,
+    rgba(0,0,0,0.1) 0%,
+    rgba(0,0,0,0.6) 55%,
+    rgba(0,0,0,0.97) 100%);
+  transition:background 0.18s ease;
 }
 
 /* content above canvas */
@@ -99,25 +98,22 @@ body{
   transition:opacity 0.5s ease;
 }
 
-/* HINT — glows like an ember */
+/* HINT — breathes like candlelight, never harsh */
 .torch-hint{
-  margin-top:2.2rem;
-  font-size:0.55rem;letter-spacing:0.5em;
-  text-transform:uppercase;color:#d4a96a;
-  animation:emberPulse 3s ease-in-out infinite;
+  margin-top:2.4rem;
+  font-size:0.52rem;letter-spacing:0.55em;
+  text-transform:uppercase;color:rgba(212,169,106,0.7);
+  animation:breatheGold 4.5s ease-in-out infinite;
   position:relative;z-index:3;
 }
-@keyframes emberPulse{
-  0%,100%{opacity:0.15;text-shadow:none}
-  40%{opacity:0.5;text-shadow:0 0 6px rgba(210,140,40,0.5)}
-  55%{
-    opacity:1;
+@keyframes breatheGold{
+  0%,100%{opacity:0.2;text-shadow:none}
+  50%{
+    opacity:0.75;
     text-shadow:
-      0 0 6px rgba(255,180,60,1),
-      0 0 16px rgba(220,120,20,0.7),
-      0 0 32px rgba(180,70,5,0.4);
+      0 0 12px rgba(212,176,122,0.3),
+      0 0 28px rgba(184,151,90,0.12);
   }
-  70%{opacity:0.4;text-shadow:0 0 4px rgba(200,120,30,0.3)}
 }
 
 /* reveal on touch */
@@ -177,9 +173,9 @@ body{
    COUNTDOWN MAIN
 ════════════════════════════════ */
 #countdown-section{
-  min-height:100svh;display:flex;flex-direction:column;
+  display:flex;flex-direction:column;
   align-items:center;justify-content:center;
-  padding:3rem 1.5rem;
+  padding:4rem 1.5rem 3rem;
   background:var(--black);position:relative;overflow:hidden;
 }
 #countdown-section::before{
@@ -199,8 +195,8 @@ body{
 }
 .cd-title{
   font-family:'Cormorant Garamond',serif;font-weight:300;
-  font-size:clamp(1.9rem,8vw,2.9rem);line-height:1.15;
-  text-align:center;margin-bottom:2.2rem;
+  font-size:clamp(2.4rem,10vw,3.6rem);line-height:1.1;
+  text-align:center;margin-bottom:2rem;
   opacity:0;animation:fadeUp 1s ease 0.7s forwards;
 }
 .cd-title em{font-style:italic;color:var(--gold)}
@@ -232,81 +228,125 @@ body{
 }
 
 /* ════════════════════════════════
+   MANIFESTO STRIP
+════════════════════════════════ */
+#manifesto-section{
+  padding:2rem 1.8rem;
+  background:linear-gradient(180deg,var(--black) 0%,#0e0c0a 100%);
+  border-bottom:1px solid var(--gold-dim);
+}
+.manifesto-text{
+  font-family:'Cormorant Garamond',serif;font-weight:300;
+  font-size:clamp(0.95rem,3.8vw,1.18rem);line-height:1.9;
+  color:rgba(237,232,225,0.45);text-align:center;
+}
+.manifesto-text em{color:var(--gold);font-style:italic}
+
+/* ════════════════════════════════
    CHEF SECTION
 ════════════════════════════════ */
 #chef-section{
   padding:3.5rem 1.4rem;
   background:linear-gradient(180deg,var(--black) 0%,#0f0d0b 100%);
 }
-.chef-header{text-align:center;margin-bottom:1.6rem}
+.chef-header{text-align:center;margin-bottom:2rem}
 .chef-tag{
   font-size:0.5rem;letter-spacing:0.5em;text-transform:uppercase;
   color:var(--gold);margin-bottom:0.5rem;
 }
 .chef-name{
   font-family:'Cormorant Garamond',serif;font-weight:300;
-  font-size:clamp(1.9rem,7vw,2.6rem);line-height:1.1;color:var(--cream);
+  font-size:clamp(2.8rem,11vw,3.8rem);line-height:1;color:var(--cream);
 }
 .chef-role{
   font-size:0.5rem;letter-spacing:0.38em;text-transform:uppercase;
   color:rgba(237,232,225,0.32);margin-top:0.35rem;
 }
-.chef-row{display:flex;gap:1.1rem;align-items:flex-start}
-.chef-img-col{flex:0 0 42%;position:relative}
+
+/* IMAGE — centered, constrained width */
+.chef-img-wrap{
+  width:100%;display:flex;justify-content:center;
+  margin-bottom:2.2rem;
+}
+.chef-img-col{
+  width:min(240px, 58vw);
+  position:relative;flex-shrink:0;
+}
 .chef-img-col::after{
   content:'';position:absolute;top:0;left:0;right:0;height:35%;
   background:linear-gradient(to bottom,rgba(184,151,90,0.1),transparent);
   border-radius:4px 4px 0 0;pointer-events:none;
 }
 .chef-img{width:100%;border-radius:4px;display:block;filter:grayscale(10%) contrast(1.05)}
-.chef-text-col{flex:1;display:flex;flex-direction:column}
-.chef-divider{width:26px;height:1px;background:var(--gold);opacity:0.5;margin-bottom:0.9rem}
-.chef-body{font-size:0.75rem;line-height:1.88;color:rgba(237,232,225,0.55)}
-.chef-body p+p{margin-top:0.85rem}
+
+/* TEXT — full width below image */
+.chef-text-col{
+  display:flex;flex-direction:column;
+  max-width:480px;margin:0 auto;
+}
+.chef-divider{width:26px;height:1px;background:var(--gold);opacity:0.5;margin-bottom:1.1rem}
+.chef-body{font-size:0.8rem;line-height:2;color:rgba(237,232,225,0.52)}
+.chef-body p+p{margin-top:1rem}
 .chef-body em{font-style:italic;color:var(--gold-light)}
 .chef-quote{
-  margin-top:1.1rem;padding-left:0.75rem;
+  margin-top:1.4rem;padding-left:0.85rem;
   border-left:1px solid rgba(184,151,90,0.35);
   font-family:'Cormorant Garamond',serif;font-style:italic;
-  font-size:0.88rem;color:rgba(184,151,90,0.65);line-height:1.6;
+  font-size:0.95rem;color:rgba(184,151,90,0.65);line-height:1.65;
 }
 
 /* ════════════════════════════════
-   COLOMBIA GASTRONOMY SECTION
+   GASTRO CAROUSEL (replaces colombia section)
 ════════════════════════════════ */
-#colombia-section{
-  padding:3.5rem 1.5rem;
+#gastro-section{
+  padding:2.8rem 0;
   background:#0c0a08;
   border-top:1px solid var(--gold-dim);
+  border-bottom:1px solid var(--gold-dim);
+  overflow:hidden;
 }
-.col-label{
+.gastro-header{text-align:center;padding:0 1.5rem;margin-bottom:1.8rem}
+.gastro-label{
   font-size:0.5rem;letter-spacing:0.5em;text-transform:uppercase;
-  color:rgba(184,151,90,0.5);margin-bottom:1.4rem;text-align:center;
+  color:rgba(184,151,90,0.5);margin-bottom:0.6rem;
 }
-.col-title{
+.gastro-title{
   font-family:'Cormorant Garamond',serif;font-weight:300;
-  font-size:clamp(1.7rem,7vw,2.4rem);line-height:1.2;
-  text-align:center;margin-bottom:1.6rem;
-  color:var(--cream);
+  font-size:clamp(2rem,8.5vw,3rem);line-height:1.1;color:var(--cream);
 }
-.col-title em{font-style:italic;color:var(--gold)}
-.col-body{
-  font-size:0.8rem;line-height:1.95;
-  color:rgba(237,232,225,0.52);
-  text-align:center;
+.gastro-title em{font-style:italic;color:var(--gold)}
+.gastro-track-wrap{
+  overflow:hidden;width:100%;
+  -webkit-mask:linear-gradient(90deg,transparent 0%,#000 10%,#000 90%,transparent 100%);
+  mask:linear-gradient(90deg,transparent 0%,#000 10%,#000 90%,transparent 100%);
 }
-.col-body p+p{margin-top:1.1rem}
-.col-body em{color:var(--gold-light);font-style:italic}
-.col-pills{
-  display:flex;flex-wrap:wrap;gap:0.6rem;
-  justify-content:center;margin-top:1.8rem;
+.gastro-track{
+  display:flex;gap:1rem;width:max-content;
+  animation:gastroScroll 36s linear infinite;
 }
-.col-pill{
-  padding:0.4rem 0.9rem;
-  border:1px solid rgba(184,151,90,0.2);
-  border-radius:20px;
-  font-size:0.52rem;letter-spacing:0.3em;text-transform:uppercase;
-  color:rgba(237,232,225,0.4);
+.gastro-track.row2{
+  animation:gastroScrollR 40s linear infinite;
+  margin-top:0.9rem;
+}
+@keyframes gastroScroll{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+@keyframes gastroScrollR{from{transform:translateX(-50%)}to{transform:translateX(0)}}
+.gastro-card{
+  display:flex;flex-direction:column;align-items:center;gap:0.7rem;
+  padding:1.2rem 1.4rem;min-width:130px;
+  border:1px solid rgba(184,151,90,0.12);border-radius:6px;
+  background:rgba(184,151,90,0.025);
+  flex-shrink:0;
+}
+.gastro-icon{
+  font-size:1.5rem;line-height:1;
+}
+.gastro-name{
+  font-size:0.5rem;letter-spacing:0.35em;text-transform:uppercase;
+  color:rgba(237,232,225,0.45);white-space:nowrap;text-align:center;
+}
+.gastro-region{
+  font-size:0.42rem;letter-spacing:0.2em;text-transform:uppercase;
+  color:rgba(184,151,90,0.4);white-space:nowrap;
 }
 
 /* ════════════════════════════════
@@ -320,16 +360,16 @@ body{
 }
 .story-label{
   font-size:0.5rem;letter-spacing:0.5em;text-transform:uppercase;
-  color:rgba(184,151,90,0.45);text-align:center;margin-bottom:1.5rem;
+  color:rgba(184,151,90,0.45);text-align:center;margin-bottom:1.2rem;
 }
 .story-text{
   font-family:'Cormorant Garamond',serif;font-weight:300;
-  font-size:clamp(1rem,4vw,1.25rem);line-height:1.8;
-  color:rgba(237,232,225,0.58);text-align:center;
+  font-size:clamp(1.15rem,4.5vw,1.4rem);line-height:1.75;
+  color:rgba(237,232,225,0.55);text-align:center;
 }
 .story-text em{color:var(--gold);font-style:italic}
 .story-tagline{
-  margin-top:1.8rem;font-size:0.58rem;
+  margin-top:1.6rem;font-size:0.58rem;
   letter-spacing:0.45em;text-transform:uppercase;
   color:var(--gold);text-align:center;
 }
@@ -379,7 +419,7 @@ body{
 }
 .notify-title{
   font-family:'Cormorant Garamond',serif;font-weight:300;
-  font-size:clamp(1.7rem,6.5vw,2.3rem);line-height:1.2;
+  font-size:clamp(2.2rem,9vw,3rem);line-height:1.1;
   text-align:center;margin-bottom:0.8rem;color:var(--cream);
 }
 .notify-title em{font-style:italic;color:var(--gold)}
@@ -550,6 +590,16 @@ footer{
   <p class="cd-sub">Colombia &nbsp;✦&nbsp; ESO Cocina Contemporánea</p>
 </section>
 
+<!-- ══════ MANIFESTO STRIP ══════ -->
+<section id="manifesto-section">
+  <p class="manifesto-text" data-lang="es">
+    <em>ESO</em> es un proyecto de cocina contemporánea colombiana. Un espacio donde la <em>alta gastronomía</em> y el territorio se encuentran sin filtros, sin pretensiones prestadas, sin intermediarios. Aquí, cada ingrediente tiene nombre, origen y productor. Cada técnica responde a una memoria. Cada plato cuenta algo que Colombia lleva siglos cocinando — y que el mundo está comenzando a descubrir.
+  </p>
+  <p class="manifesto-text" data-lang="en">
+    <em>ESO</em> is a contemporary Colombian cuisine project. A space where <em>fine dining</em> and territory meet without filters, without borrowed pretension, without intermediaries. Here, every ingredient has a name, an origin, and a producer. Every technique answers to a memory. Every dish tells something Colombia has been cooking for centuries — and that the world is only beginning to discover.
+  </p>
+</section>
+
 <!-- ══════ 2. CHEF ══════ -->
 <section id="chef-section">
   <div class="chef-header">
@@ -563,69 +613,49 @@ footer{
       <span data-lang="en">Chef & CEO · ESO Contemporary Cuisine</span>
     </p>
   </div>
-  <div class="chef-row">
+  <div class="chef-img-wrap">
     <div class="chef-img-col">
       <img class="chef-img" src="https://i.ibb.co/6Jw1mLSZ/Chat-GPT-Image-22-jun-2026-07-01-03-p-m.png" onerror="this.onerror=null" alt="Chef Sebastián">
     </div>
-    <div class="chef-text-col">
-      <div class="chef-divider"></div>
-      <div class="chef-body">
+  </div>
+  <div class="chef-text-col">
+    <div class="chef-divider"></div>
+    <div class="chef-body">
         <p data-lang="es">
-          Cartagenero de corazón, <em>23 años</em>, con 5 años forjando su camino en la alta cocina de Colombia. Hoy vive en Rionegro, Antioquia, donde afina cada detalle de <em>ESO</em>.
+          Nacido en Colombia, hijo de la costa Caribe con <em>23 años</em>. A los 18 tomó la decisión que definiría su vida: entrar de lleno a la alta cocina colombiana. Lleva <em>5 años de trayectoria ininterrumpida</em> recorriendo las cocinas más exigentes del país — del Pacífico a los fogones andinos, de Bogotá al Eje Cafetero.
         </p>
         <p data-lang="es">
-          Ha trabajado en cocinas a lo largo y ancho del país — del Pacífico al Caribe, de la capital al eje cafetero — absorbiendo técnicas, ingredientes y memorias que hoy se convierten en platos.
+          Hoy vive en <em>Rionegro, Antioquia</em>, donde afina cada detalle de ESO. Trabaja directamente con productores locales y lleva ese conocimiento de campo directo a la mesa. Su cocina no busca imitar — busca recordar, reinterpretar y sorprender.
         </p>
         <p data-lang="en">
-          Born in Cartagena, <em>23 years old</em>, 5 years shaping his path across Colombia's finest kitchens. Now based in Rionegro, Antioquia, refining every detail of <em>ESO</em>.
+          Born in Colombia on the Caribbean coast, <em>23 years old</em>. At 18, he made the decision that would define his life: immersing himself fully in Colombia's fine dining scene. He has built <em>5 years of uninterrupted experience</em> across the country's most demanding kitchens — from the Pacific coast to the Andean highlands.
         </p>
         <p data-lang="en">
-          From the Pacific coast to the Caribbean, from Bogotá to the coffee region — each kitchen left its mark in techniques, ingredients, and memories that now become dishes.
+          Today he lives in <em>Rionegro, Antioquia</em>, refining every detail of ESO. He works directly with local producers and brings that field knowledge straight to the table. His cuisine does not imitate — it remembers, reinterprets, and surprises.
         </p>
       </div>
       <blockquote class="chef-quote" data-lang="es">"La cocina colombiana tiene todo. Solo falta contarla diferente."</blockquote>
       <blockquote class="chef-quote" data-lang="en">"Colombian cuisine has everything. It just needs to be told differently."</blockquote>
     </div>
-  </div>
 </section>
 
-<!-- ══════ 3. COLOMBIA GASTRONOMÍA ══════ -->
-<section id="colombia-section">
-  <p class="col-label">
-    <span data-lang="es">Nuestra Tierra</span>
-    <span data-lang="en">Our Land</span>
-  </p>
-  <h2 class="col-title">
-    <span data-lang="es">Colombia,<br>un territorio de <em>sabor infinito</em></span>
-    <span data-lang="en">Colombia,<br>a land of <em>infinite flavor</em></span>
-  </h2>
-  <div class="col-body">
-    <p data-lang="es">
-      Colombia es uno de los países con mayor biodiversidad gastronómica del planeta. Desde el coco y el ñame de la costa Caribe, hasta la trucha y la papa criolla de las montañas andinas, cada región guarda sabores únicos que pocas cocinas del mundo han sabido reinterpretar con respeto y técnica.
+<!-- ══════ 3. GASTRO CAROUSEL ══════ -->
+<section id="gastro-section">
+  <div class="gastro-header">
+    <p class="gastro-label">
+      <span data-lang="es">Nuestra Tierra</span>
+      <span data-lang="en">Our Land</span>
     </p>
-    <p data-lang="es">
-      Ingredientes como el <em>borojó</em>, el <em>chontaduro</em>, la <em>guanábana</em>, el <em>achiote</em> o los plátanos de mil variedades son parte de un patrimonio que merece ocupar las mesas más sofisticadas del mundo. En ESO, ese es exactamente nuestro propósito.
-    </p>
-    <p data-lang="es">
-      La gastronomía colombiana está viviendo su momento. Chefs jóvenes están apostando por lo local, por los mercados campesinos, por los sabores que siempre estuvieron ahí — esperando ser vistos con ojos nuevos.
-    </p>
-    <p data-lang="en">
-      Colombia is one of the most gastronomically biodiverse countries on earth. From coconut and yam on the Caribbean coast to trout and criolla potato in the Andean highlands, every region holds flavors that few world cuisines have reinterpreted with such respect and skill.
-    </p>
-    <p data-lang="en">
-      Ingredients like <em>borojó</em>, <em>chontaduro</em>, <em>soursop</em>, <em>achiote</em>, and hundreds of plantain varieties are a heritage that deserves a place at the world's most sophisticated tables. At ESO, that is precisely our purpose.
-    </p>
-    <p data-lang="en">
-      Colombian gastronomy is having its moment. Young chefs are betting on the local, on farmers' markets, on flavors that were always there — waiting to be seen with fresh eyes.
-    </p>
+    <h2 class="gastro-title">
+      <span data-lang="es">Colombia,<br>sabor <em>infinito</em></span>
+      <span data-lang="en">Colombia,<br><em>infinite</em> flavor</span>
+    </h2>
   </div>
-  <div class="col-pills">
-    <span class="col-pill">Caribe</span>
-    <span class="col-pill">Andina</span>
-    <span class="col-pill">Pacífico</span>
-    <span class="col-pill">Amazónica</span>
-    <span class="col-pill">Orinoquía</span>
-    <span class="col-pill">Eje Cafetero</span>
+  <div class="gastro-track-wrap">
+    <div class="gastro-track" id="gastroTrack1"></div>
+  </div>
+  <div class="gastro-track-wrap" style="margin-top:0.9rem">
+    <div class="gastro-track row2" id="gastroTrack2"></div>
   </div>
 </section>
 
@@ -637,18 +667,16 @@ footer{
   </p>
   <p class="story-text" data-lang="es">
     Hay cosas que no tienen nombre, pero todos las recordamos.<br>
-    Un olor, un sabor, una palabra que se escapa entre los dientes: <em>"eso…"</em><br><br>
-    ESO nace de la memoria, del antojo, de la raíz.<br>
-    Pero también de la mirada nueva — del deseo de transformar lo cotidiano en extraordinario.<br><br>
-    Hacemos <em>alta cocina con alma local</em>. Apostamos por ingredientes colombianos, productores pequeños, sabores que nos pertenecen. Los presentamos en formas ligeras, modernas, minimalistas, pero profundamente nuestras.<br><br>
+    Un olor, un sabor, una palabra: <em>"eso…"</em><br><br>
+    ESO nace de la memoria y de la mirada nueva.<br>
+    Hacemos <em>alta cocina con alma local</em> — ingredientes colombianos, productores pequeños, sabores que nos pertenecen, presentados de forma moderna y minimalista.<br><br>
     Cada plato es un homenaje a lo que fuimos y una visión de lo que podemos ser.
   </p>
   <p class="story-text" data-lang="en">
     Some things have no name, but we all remember them.<br>
-    A smell, a taste, a word that slips between your teeth: <em>"that…"</em><br><br>
-    ESO is born from memory, craving, and roots.<br>
-    But also from a fresh perspective — a desire to transform the everyday into the extraordinary.<br><br>
-    We practice <em>fine dining with a local soul</em>. We champion Colombian ingredients, small producers, flavors that belong to us. We present them in light, modern, minimalist forms — but deeply ours.<br><br>
+    A smell, a taste, a word: <em>"that…"</em><br><br>
+    ESO is born from memory and a fresh perspective.<br>
+    We practice <em>fine dining with a local soul</em> — Colombian ingredients, small producers, flavors that belong to us, presented in a modern, minimalist form.<br><br>
     Every dish is a tribute to who we were and a vision of who we can become.
   </p>
   <p class="story-tagline" data-lang="es">ESO no se explica. Se siente. Se prueba. Se recuerda.</p>
@@ -677,8 +705,8 @@ footer{
     <span data-lang="en">Notify me when<br><em>ESO opens</em></span>
   </h2>
   <p class="notify-sub">
-    <span data-lang="es">Déjanos tu nombre y correo. Te escribiremos el día que abramos las puertas.</span>
-    <span data-lang="en">Leave your name and email. We'll write to you the day we open our doors.</span>
+    <span data-lang="es">Déjanos tu nombre, correo y si quieres, un mensaje. El día que ESO abra sus puertas, serás el primero en enterarte. Sin spam, sin ruido — solo el aviso que importa.</span>
+    <span data-lang="en">Leave your name, email, and if you'd like, a message. The day ESO opens its doors, you'll be the first to know. No spam, no noise — just the one notification that matters.</span>
   </p>
   <div class="notify-form">
     <input class="notify-input" type="text" id="notif-name" placeholder="Tu nombre" autocomplete="off">
@@ -751,83 +779,65 @@ let glowR=0;                   // animated radius
 function resizeGC(){gc.width=window.innerWidth;gc.height=window.innerHeight}
 resizeGC();window.addEventListener('resize',resizeGC);
 
-/* soft glow particles (subtle, premium) */
-const glows=[];
-function addGlow(x,y){
-  if(!lit)return;
-  // spawn soft luminous wisps, not harsh fire
-  for(let i=0;i<2;i++){
-    const a=(Math.random()*Math.PI*2);
-    const spd=0.3+Math.random()*0.9;
-    glows.push({
-      x:x+(Math.random()-0.5)*30,
-      y:y+(Math.random()-0.5)*20,
-      vx:Math.cos(a)*spd*0.4,
-      vy:-Math.abs(Math.sin(a))*spd - 0.3,
-      life:1,
-      decay:0.008+Math.random()*0.014,
-      r:8+Math.random()*22,
-      hue:28+Math.random()*20,   // warm gold range
-    });
-  }
-}
+/* premium ambient pool — no particles, pure luminous glow */
+let breatheT=0; // for gentle breathing effect when idle
 
 function drawGlow(){
   gctx.clearRect(0,0,gc.width,gc.height);
+  breatheT+=0.012;
 
-  /* 1. Main soft radial light at touch point */
   if(lit){
-    glowR+=(120-glowR)*0.07;   // smooth expand
-    const grad=gctx.createRadialGradient(tx,ty,0,tx,ty,glowR*2.2);
-    grad.addColorStop(0,  'rgba(220,170,80,0.13)');
-    grad.addColorStop(0.35,'rgba(190,130,50,0.07)');
-    grad.addColorStop(0.7, 'rgba(150,90,20,0.03)');
-    grad.addColorStop(1,   'rgba(0,0,0,0)');
-    gctx.fillStyle=grad;
+    // smooth expand to target radius
+    glowR+=(160-glowR)*0.06;
+
+    const breathe = 1 + Math.sin(breatheT)*0.04; // very subtle, ±4%
+
+    /* outer ambient pool — wide, very soft */
+    const outer=gctx.createRadialGradient(tx,ty,0,tx,ty,glowR*3*breathe);
+    outer.addColorStop(0,  'rgba(212,176,122,0.08)');
+    outer.addColorStop(0.3,'rgba(184,151,90,0.05)');
+    outer.addColorStop(0.6,'rgba(140,100,40,0.02)');
+    outer.addColorStop(1,  'rgba(0,0,0,0)');
+    gctx.fillStyle=outer;
     gctx.beginPath();
-    gctx.arc(tx,ty,glowR*2.2,0,Math.PI*2);
+    gctx.arc(tx,ty,glowR*3*breathe,0,Math.PI*2);
     gctx.fill();
 
-    /* inner warm core */
-    const core=gctx.createRadialGradient(tx,ty,0,tx,ty,glowR*0.5);
-    core.addColorStop(0,'rgba(255,210,120,0.18)');
-    core.addColorStop(0.5,'rgba(220,160,60,0.07)');
-    core.addColorStop(1,'rgba(0,0,0,0)');
-    gctx.fillStyle=core;
+    /* mid warm halo */
+    const mid=gctx.createRadialGradient(tx,ty,0,tx,ty,glowR*1.4*breathe);
+    mid.addColorStop(0,  'rgba(230,190,110,0.10)');
+    mid.addColorStop(0.5,'rgba(200,155,70,0.05)');
+    mid.addColorStop(1,  'rgba(0,0,0,0)');
+    gctx.fillStyle=mid;
     gctx.beginPath();
-    gctx.arc(tx,ty,glowR*0.5,0,Math.PI*2);
+    gctx.arc(tx,ty,glowR*1.4*breathe,0,Math.PI*2);
     gctx.fill();
-  }
 
-  /* 2. Soft wisplets */
-  for(let i=glows.length-1;i>=0;i--){
-    const p=glows[i];
-    p.x+=p.vx; p.y+=p.vy; p.vy-=0.012; p.r*=0.985; p.life-=p.decay;
-    if(p.life<=0||p.r<1){glows.splice(i,1);continue}
-    const pg=gctx.createRadialGradient(p.x,p.y,0,p.x,p.y,p.r);
-    pg.addColorStop(0,`hsla(${p.hue},80%,75%,${p.life*0.18})`);
-    pg.addColorStop(0.5,`hsla(${p.hue},70%,55%,${p.life*0.07})`);
-    pg.addColorStop(1,'hsla(0,0%,0%,0)');
-    gctx.fillStyle=pg;
-    gctx.beginPath();gctx.arc(p.x,p.y,p.r,0,Math.PI*2);gctx.fill();
-  }
+    /* soft inner warmth — tiny, intimate */
+    const inner=gctx.createRadialGradient(tx,ty,0,tx,ty,glowR*0.38);
+    inner.addColorStop(0,'rgba(255,225,160,0.12)');
+    inner.addColorStop(0.6,'rgba(220,175,90,0.04)');
+    inner.addColorStop(1,'rgba(0,0,0,0)');
+    gctx.fillStyle=inner;
+    gctx.beginPath();
+    gctx.arc(tx,ty,glowR*0.38,0,Math.PI*2);
+    gctx.fill();
 
-  /* 3. Update CSS vignette (the dark mask that makes edges black) */
-  if(lit){
+    /* CSS vignette — opens gracefully around touch center */
     const px=(tx/gc.width*100).toFixed(1)+'%';
     const py=(ty/gc.height*100).toFixed(1)+'%';
-    vigEl.style.background=`radial-gradient(circle 180px at ${px} ${py},transparent 0%,rgba(0,0,0,0.4) 55%,rgba(0,0,0,0.93) 100%)`;
+    const r=Math.round(glowR*1.5);
+    vigEl.style.background=`radial-gradient(circle ${r}px at ${px} ${py},rgba(0,0,0,0.05) 0%,rgba(0,0,0,0.45) 50%,rgba(0,0,0,0.97) 100%)`;
   }
 
-  addGlow(tx,ty);
   if(!dismissed)requestAnimationFrame(drawGlow);
 }
 requestAnimationFrame(drawGlow);
 
-/* lerp touch position for smoothness */
+/* lerp touch position — slow, luxurious follow on mobile */
 function lerpTorch(){
-  tx+=(targetX-tx)*0.12;
-  ty+=(targetY-ty)*0.12;
+  tx+=(targetX-tx)*0.07;
+  ty+=(targetY-ty)*0.07;
   if(!dismissed)requestAnimationFrame(lerpTorch);
 }
 requestAnimationFrame(lerpTorch);
@@ -872,6 +882,7 @@ langBtn.addEventListener('click',()=>{
   bodyEl.className='lang-'+lang;
   langBtn.textContent=lang==='es'?'EN / ES':'ES / EN';
   setTimeout(()=>buildCarousel(lang),10);
+  buildGastroCarousel(lang);
   // swap placeholder lang on inputs
   document.getElementById('notif-name').placeholder=lang==='es'?'Tu nombre':'Your name';
   document.getElementById('notif-email').placeholder=lang==='es'?'Tu correo electrónico':'Your email address';
@@ -904,6 +915,48 @@ function buildCarousel(l){
   });
 }
 buildCarousel('es');
+
+/* ══ GASTRO CAROUSEL ══ */
+const gastroRow1=[
+  {icon:'🌿', es:'Chontaduro',    en:'Chontaduro',    region:'Pacífico'},
+  {icon:'🍫', es:'Cacao Fino',    en:'Fine Cacao',    region:'Andina'},
+  {icon:'☕', es:'Café Especial', en:'Specialty Coffee',region:'Eje Cafetero'},
+  {icon:'🐟', es:'Bagre',        en:'Catfish',        region:'Amazonía'},
+  {icon:'🌺', es:'Borojó',       en:'Borojó',         region:'Pacífico'},
+  {icon:'🥔', es:'Papa Criolla', en:'Criolla Potato', region:'Andina'},
+  {icon:'🌽', es:'Maíz Peto',    en:'Peto Corn',      region:'Valle'},
+  {icon:'🍃', es:'Guanábana',    en:'Soursop',        region:'Caribe'},
+  {icon:'🌾', es:'Ñame',         en:'Yam',            region:'Caribe'},
+  {icon:'🐄', es:'Res de Pasto', en:'Grass-fed Beef', region:'Llanos'},
+];
+const gastroRow2=[
+  {icon:'🍌', es:'Plátano Hartón',en:'Hartón Plantain',region:'Eje Cafetero'},
+  {icon:'🐠', es:'Trucha',        en:'Rainbow Trout',  region:'Andina'},
+  {icon:'🌶️', es:'Ají Amarillo', en:'Yellow Chili',   region:'Colombia'},
+  {icon:'🫚', es:'Achiote',       en:'Achiote',        region:'Caribe'},
+  {icon:'🌊', es:'Coco Caribe',   en:'Caribbean Coconut',region:'Caribe'},
+  {icon:'🍋', es:'Lulo',          en:'Lulo',           region:'Andina'},
+  {icon:'🫙', es:'Hogao',         en:'Hogao',          region:'Colombia'},
+  {icon:'🥭', es:'Mango Tommy',   en:'Tommy Mango',    region:'Costa'},
+  {icon:'🌿', es:'Hierbas Silvestres',en:'Wild Herbs', region:'Amazonia'},
+  {icon:'🧀', es:'Quesillo',      en:'Quesillo',       region:'Andina'},
+];
+function buildGastroCarousel(l){
+  const t1=document.getElementById('gastroTrack1');
+  const t2=document.getElementById('gastroTrack2');
+  if(!t1||!t2)return;
+  [t1,t2].forEach((t,i)=>{
+    t.innerHTML='';
+    const src=i===0?gastroRow1:gastroRow2;
+    [...src,...src].forEach(item=>{
+      const c=document.createElement('div');
+      c.className='gastro-card';
+      c.innerHTML=`<span class="gastro-icon">${item.icon}</span><span class="gastro-name">${item[l]||item.es}</span><span class="gastro-region">${item.region}</span>`;
+      t.appendChild(c);
+    });
+  });
+}
+buildGastroCarousel('es');
 
 /* ══ NOTIFY FORM — sends via mailto ══ */
 function sendNotify(){
