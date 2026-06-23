@@ -1,0 +1,983 @@
+<!DOCTYPE html>
+<html lang="es" id="html-root">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>ESO — Cocina Contemporánea · 2027</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;1,300&family=Montserrat:wght@200;300;400&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --cream:#EDE8E1;
+  --black:#0A0907;
+  --dark:#1A1714;
+  --gold:#B8975A;
+  --gold-light:#D4B07A;
+  --gold-dim:rgba(184,151,90,0.18);
+}
+html{scroll-behavior:smooth}
+body{
+  background:var(--black);
+  color:var(--cream);
+  font-family:'Montserrat',sans-serif;
+  font-weight:200;
+  overflow-x:hidden;
+  -webkit-tap-highlight-color:transparent;
+}
+
+/* ════════════════════════════════
+   TORCH / DARK INTRO OVERLAY
+════════════════════════════════ */
+#torch-overlay{
+  position:fixed;
+  inset:0;
+  z-index:900;
+  background:#000;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  touch-action:none;
+  cursor:none;
+  transition:opacity 1s ease;
+  overflow:hidden;
+}
+#torch-overlay.fade-out{opacity:0;pointer-events:none}
+
+/* Canvas for fire particle effect */
+#fire-canvas{
+  position:absolute;
+  inset:0;
+  width:100%;height:100%;
+  pointer-events:none;
+}
+
+/* Dark vignette over canvas so edges stay black */
+#torch-overlay::after{
+  content:'';
+  position:absolute;
+  inset:0;
+  background:radial-gradient(ellipse at var(--tx,50%) var(--ty,50%),
+    transparent 0%,
+    transparent 18%,
+    rgba(0,0,0,0.55) 38%,
+    rgba(0,0,0,0.88) 60%,
+    #000 80%);
+  pointer-events:none;
+  transition:--tx 0.05s, --ty 0.05s;
+}
+
+/* Content (logo + countdown) sits above canvas */
+#torch-cd{
+  position:absolute;
+  top:50%;left:50%;
+  transform:translate(-50%,-50%);
+  text-align:center;
+  pointer-events:none;
+  width:90vw;
+  z-index:2;
+}
+.torch-logo{
+  width:170px;
+  height:auto;
+  margin:0 auto 1.6rem;
+  display:block;
+  filter:brightness(0) invert(1);
+  opacity:0.05;
+  transition:opacity 0.5s ease;
+}
+.torch-num-row{
+  display:flex;
+  align-items:flex-start;
+  justify-content:center;
+  gap:0.5rem;
+}
+.torch-unit{display:flex;flex-direction:column;align-items:center}
+.torch-num{
+  font-size:clamp(2.6rem,11vw,4rem);
+  font-weight:300;
+  color:var(--gold-light);
+  line-height:1;
+  opacity:0.04;
+  transition:opacity 0.4s ease;
+  text-shadow:none;
+}
+.torch-sep{
+  font-size:clamp(2rem,8vw,3rem);
+  color:rgba(184,151,90,0.3);
+  line-height:1;
+  padding-top:0.05em;
+  font-weight:200;
+  opacity:0.04;
+  transition:opacity 0.4s ease;
+}
+.torch-lbl{
+  font-size:0.48rem;
+  letter-spacing:0.35em;
+  text-transform:uppercase;
+  color:rgba(237,232,225,0.3);
+  margin-top:0.3rem;
+  opacity:0.04;
+  transition:opacity 0.4s ease;
+}
+
+/* HINT TEXT — glows to guide the user */
+.torch-hint{
+  margin-top:2rem;
+  font-size:0.58rem;
+  letter-spacing:0.45em;
+  text-transform:uppercase;
+  color:#fff;
+  animation:hintGlow 2.4s ease-in-out infinite;
+  position:relative;
+  z-index:3;
+}
+@keyframes hintGlow{
+  0%,100%{
+    opacity:0.18;
+    text-shadow:none;
+  }
+  50%{
+    opacity:0.95;
+    text-shadow:
+      0 0 8px rgba(220,160,60,0.9),
+      0 0 20px rgba(220,130,30,0.6),
+      0 0 40px rgba(180,90,10,0.35);
+  }
+}
+
+/* Reveal content as torch moves */
+#torch-overlay.touched .torch-logo{opacity:0.88}
+#torch-overlay.touched .torch-num{
+  opacity:1;
+  text-shadow:0 0 18px rgba(212,176,122,0.5);
+}
+#torch-overlay.touched .torch-sep{opacity:0.7}
+#torch-overlay.touched .torch-lbl{opacity:0.55}
+
+/* skip button */
+#torch-skip{
+  position:absolute;
+  bottom:2rem;right:1.5rem;
+  font-size:0.52rem;
+  letter-spacing:0.38em;
+  text-transform:uppercase;
+  color:rgba(237,232,225,0.28);
+  border:1px solid rgba(237,232,225,0.1);
+  padding:0.5rem 1rem;
+  border-radius:2px;
+  background:transparent;
+  cursor:pointer;
+  -webkit-tap-highlight-color:transparent;
+  z-index:3;
+}
+
+/* ════════════════════════════════
+   LANG SWITCHER
+════════════════════════════════ */
+#lang-btn{
+  position:fixed;
+  top:1.2rem;right:1.2rem;
+  z-index:800;
+  background:rgba(10,9,7,0.85);
+  border:1px solid var(--gold-dim);
+  border-radius:3px;
+  padding:0.4rem 0.75rem;
+  font-size:0.55rem;
+  letter-spacing:0.3em;
+  text-transform:uppercase;
+  color:rgba(237,232,225,0.55);
+  cursor:pointer;
+  -webkit-tap-highlight-color:transparent;
+  backdrop-filter:blur(6px);
+  transition:color 0.3s,border-color 0.3s;
+}
+#lang-btn:active{color:var(--gold);border-color:var(--gold)}
+
+/* ════════════════════════════════
+   FLOATING SOCIAL BUTTONS
+════════════════════════════════ */
+#social-btns{
+  position:fixed;
+  bottom:1.6rem;right:1.2rem;
+  z-index:800;
+  display:flex;
+  flex-direction:column;
+  gap:0.65rem;
+}
+.social-dot{
+  width:46px;height:46px;
+  border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  text-decoration:none;
+  box-shadow:0 2px 16px rgba(0,0,0,0.4);
+  transition:transform 0.2s ease;
+}
+.social-dot:active{transform:scale(0.92)}
+.social-dot.wa{background:#25D366}
+.social-dot.ig{background:radial-gradient(circle at 30% 107%, #fdf497 0%, #fd5949 45%, #d6249f 60%, #285AEB 90%)}
+.social-dot svg{width:22px;height:22px;fill:#fff}
+
+/* ════════════════════════════════
+   COUNTDOWN SECTION (main)
+════════════════════════════════ */
+#countdown-section{
+  min-height:100svh;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  padding:3rem 1.5rem;
+  background:var(--black);
+  position:relative;
+  overflow:hidden;
+}
+#countdown-section::before{
+  content:'';
+  position:absolute;
+  inset:0;
+  background:radial-gradient(ellipse at 50% 55%, rgba(184,151,90,0.08) 0%, transparent 65%);
+  pointer-events:none;
+}
+
+.logo-wrap{
+  margin-bottom:2rem;
+  opacity:0;
+  animation:fadeUp 1s ease 0.2s forwards;
+}
+/* HORIZONTAL logo — wider */
+.logo-wrap img{
+  width:200px;
+  height:auto;
+  display:block;
+  object-fit:contain;
+}
+
+.cd-label{
+  font-size:0.58rem;
+  letter-spacing:0.5em;
+  text-transform:uppercase;
+  color:rgba(184,151,90,0.65);
+  margin-bottom:0.8rem;
+  opacity:0;
+  animation:fadeUp 1s ease 0.5s forwards;
+}
+.cd-title{
+  font-family:'Cormorant Garamond',serif;
+  font-weight:300;
+  font-size:clamp(2rem,8.5vw,3rem);
+  line-height:1.15;
+  text-align:center;
+  margin-bottom:2.2rem;
+  opacity:0;
+  animation:fadeUp 1s ease 0.7s forwards;
+}
+.cd-title em{font-style:italic;color:var(--gold)}
+
+.countdown{
+  display:flex;
+  align-items:flex-start;
+  gap:0.5rem;
+  margin-bottom:2.2rem;
+  opacity:0;
+  animation:fadeUp 1s ease 0.9s forwards;
+}
+.cd-unit{display:flex;flex-direction:column;align-items:center}
+.cd-num{
+  font-weight:300;
+  font-size:clamp(2.2rem,9.5vw,3.4rem);
+  color:var(--gold-light);
+  line-height:1;
+  letter-spacing:-0.02em;
+}
+.cd-lbl{
+  font-size:0.48rem;
+  letter-spacing:0.35em;
+  text-transform:uppercase;
+  color:rgba(237,232,225,0.3);
+  margin-top:0.3rem;
+}
+.cd-sep{
+  font-size:clamp(1.6rem,7vw,2.6rem);
+  color:rgba(184,151,90,0.35);
+  line-height:1;
+  padding-top:0.05em;
+  font-weight:200;
+}
+.gold-line{
+  width:36px;height:1px;
+  background:var(--gold);
+  opacity:0;
+  animation:fadeIn 1s ease 1.3s forwards;
+  margin-bottom:1.2rem;
+}
+.cd-sub{
+  font-size:0.6rem;
+  letter-spacing:0.4em;
+  text-transform:uppercase;
+  color:rgba(237,232,225,0.25);
+  text-align:center;
+  opacity:0;
+  animation:fadeIn 1s ease 1.5s forwards;
+}
+
+/* ════════════════════════════════
+   CHEF SECTION — compact mobile
+════════════════════════════════ */
+#chef-section{
+  padding:3.5rem 1.4rem;
+  background:linear-gradient(180deg,var(--black) 0%,#0f0d0b 100%);
+}
+
+/* Header above the row */
+.chef-header{
+  text-align:center;
+  margin-bottom:1.6rem;
+}
+.chef-tag{
+  font-size:0.52rem;
+  letter-spacing:0.5em;
+  text-transform:uppercase;
+  color:var(--gold);
+  margin-bottom:0.5rem;
+}
+.chef-name{
+  font-family:'Cormorant Garamond',serif;
+  font-weight:300;
+  font-size:clamp(1.9rem,7vw,2.6rem);
+  line-height:1.1;
+  color:var(--cream);
+}
+.chef-role{
+  font-size:0.52rem;
+  letter-spacing:0.38em;
+  text-transform:uppercase;
+  color:rgba(237,232,225,0.35);
+  margin-top:0.35rem;
+}
+
+/* side-by-side row */
+.chef-row{
+  display:flex;
+  gap:1.1rem;
+  align-items:flex-start;
+}
+.chef-img-col{
+  flex:0 0 42%;
+  position:relative;
+}
+.chef-img-col::after{
+  content:'';
+  position:absolute;
+  top:0;left:0;right:0;
+  height:40%;
+  background:linear-gradient(to bottom,rgba(184,151,90,0.12),transparent);
+  border-radius:4px 4px 0 0;
+  pointer-events:none;
+}
+.chef-img{
+  width:100%;
+  border-radius:4px;
+  display:block;
+  filter:grayscale(10%) contrast(1.05);
+}
+.chef-text-col{
+  flex:1;
+  display:flex;
+  flex-direction:column;
+  justify-content:flex-start;
+}
+.chef-divider{
+  width:28px;height:1px;
+  background:var(--gold);
+  opacity:0.5;
+  margin-bottom:0.9rem;
+}
+.chef-body{
+  font-size:0.78rem;
+  line-height:1.85;
+  color:rgba(237,232,225,0.58);
+}
+.chef-body p+p{margin-top:0.9rem}
+.chef-body em{font-style:italic;color:var(--gold-light)}
+.chef-quote{
+  margin-top:1.2rem;
+  padding-left:0.8rem;
+  border-left:1px solid rgba(184,151,90,0.4);
+  font-family:'Cormorant Garamond',serif;
+  font-style:italic;
+  font-size:0.9rem;
+  color:rgba(184,151,90,0.7);
+  line-height:1.6;
+}
+
+/* ════════════════════════════════
+   BRAND STORY SECTION
+════════════════════════════════ */
+#story-section{
+  padding:3rem 1.5rem;
+  background:#0d0b09;
+  border-top:1px solid var(--gold-dim);
+  border-bottom:1px solid var(--gold-dim);
+}
+.story-label{
+  font-size:0.52rem;
+  letter-spacing:0.5em;
+  text-transform:uppercase;
+  color:rgba(184,151,90,0.5);
+  text-align:center;
+  margin-bottom:1.6rem;
+}
+.story-text{
+  font-family:'Cormorant Garamond',serif;
+  font-weight:300;
+  font-size:clamp(1.05rem,4vw,1.3rem);
+  line-height:1.75;
+  color:rgba(237,232,225,0.62);
+  text-align:center;
+}
+.story-text em{color:var(--gold);font-style:italic}
+.story-tagline{
+  margin-top:2rem;
+  font-family:'Montserrat',sans-serif;
+  font-size:0.6rem;
+  letter-spacing:0.45em;
+  text-transform:uppercase;
+  color:var(--gold);
+  text-align:center;
+}
+
+/* ════════════════════════════════
+   VALUES CAROUSEL
+════════════════════════════════ */
+#values-section{
+  padding:3rem 0;
+  background:var(--black);
+  overflow:hidden;
+}
+.values-label{
+  font-size:0.52rem;
+  letter-spacing:0.5em;
+  text-transform:uppercase;
+  color:rgba(184,151,90,0.45);
+  text-align:center;
+  margin-bottom:1.8rem;
+  padding:0 1.5rem;
+}
+.carousel-wrap{
+  overflow:hidden;
+  width:100%;
+  -webkit-mask:linear-gradient(90deg,transparent 0%,#000 12%,#000 88%,transparent 100%);
+  mask:linear-gradient(90deg,transparent 0%,#000 12%,#000 88%,transparent 100%);
+}
+.carousel-track{
+  display:flex;
+  gap:1rem;
+  width:max-content;
+  animation:scrollLeft 26s linear infinite;
+}
+@keyframes scrollLeft{
+  from{transform:translateX(0)}
+  to{transform:translateX(-50%)}
+}
+
+.value-chip{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:0.6rem;
+  padding:1.15rem 1.3rem;
+  border:1px solid rgba(184,151,90,0.15);
+  border-radius:5px;
+  background:rgba(184,151,90,0.025);
+  min-width:120px;
+}
+/* SVG icon — single gold color */
+.value-chip svg{
+  width:22px;height:22px;
+  stroke:var(--gold);
+  fill:none;
+  stroke-width:1.4;
+  stroke-linecap:round;
+  stroke-linejoin:round;
+  opacity:0.85;
+}
+.value-name{
+  font-size:0.55rem;
+  letter-spacing:0.38em;
+  text-transform:uppercase;
+  color:rgba(237,232,225,0.45);
+  white-space:nowrap;
+}
+
+/* ════════════════════════════════
+   FOOTER
+════════════════════════════════ */
+footer{
+  padding:2.5rem 1.5rem 5rem;
+  text-align:center;
+  border-top:1px solid var(--gold-dim);
+}
+.footer-logo{
+  width:130px;
+  height:auto;
+  margin:0 auto 1.4rem;
+  display:block;
+  opacity:0.35;
+}
+.footer-tagline{
+  font-family:'Cormorant Garamond',serif;
+  font-style:italic;
+  font-size:1rem;
+  color:rgba(237,232,225,0.35);
+  margin-bottom:1.2rem;
+}
+.footer-links{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:1.2rem;
+  margin-bottom:1.2rem;
+}
+.footer-link{
+  display:flex;align-items:center;gap:0.4rem;
+  font-size:0.55rem;letter-spacing:0.25em;text-transform:uppercase;
+  color:rgba(237,232,225,0.3);
+  text-decoration:none;
+  transition:color 0.3s;
+}
+.footer-link:active{color:var(--gold)}
+.footer-link svg{width:13px;height:13px;stroke:currentColor;fill:none;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round}
+.footer-copy{
+  font-size:0.5rem;letter-spacing:0.28em;text-transform:uppercase;
+  color:rgba(237,232,225,0.15);line-height:1.9;
+}
+
+/* ════════════════════════════════
+   ANIMATIONS
+════════════════════════════════ */
+@keyframes fadeUp{
+  from{opacity:0;transform:translateY(14px)}
+  to{opacity:1;transform:translateY(0)}
+}
+@keyframes fadeIn{
+  from{opacity:0}
+  to{opacity:1}
+}
+
+/* bilingual — hide inactive lang */
+[data-lang]{transition:opacity 0.3s}
+.lang-en [data-lang="es"]{display:none}
+.lang-es [data-lang="en"]{display:none}
+</style>
+</head>
+<body class="lang-es" id="body-root">
+
+<!-- ════════ TORCH OVERLAY ════════ -->
+<div id="torch-overlay">
+  <canvas id="fire-canvas"></canvas>
+  <div id="torch-cd">
+    <img class="torch-logo"
+         src="https://i.ibb.co/Cpw73NF1/Eso.webp"
+         onerror="this.src=''"
+         alt="ESO">
+    <div class="torch-num-row">
+      <div class="torch-unit">
+        <span class="torch-num" id="t-days">000</span>
+        <span class="torch-lbl" data-lang="es">Días</span>
+        <span class="torch-lbl" data-lang="en">Days</span>
+      </div>
+      <span class="torch-sep">:</span>
+      <div class="torch-unit">
+        <span class="torch-num" id="t-hours">00</span>
+        <span class="torch-lbl" data-lang="es">Horas</span>
+        <span class="torch-lbl" data-lang="en">Hours</span>
+      </div>
+      <span class="torch-sep">:</span>
+      <div class="torch-unit">
+        <span class="torch-num" id="t-mins">00</span>
+        <span class="torch-lbl" data-lang="es">Minutos</span>
+        <span class="torch-lbl" data-lang="en">Minutes</span>
+      </div>
+      <span class="torch-sep">:</span>
+      <div class="torch-unit">
+        <span class="torch-num" id="t-secs">00</span>
+        <span class="torch-lbl" data-lang="es">Segundos</span>
+        <span class="torch-lbl" data-lang="en">Seconds</span>
+      </div>
+    </div>
+    <p class="torch-hint" data-lang="es">Toca para iluminar</p>
+    <p class="torch-hint" data-lang="en">Touch to reveal</p>
+  </div>
+  <button id="torch-skip" data-lang="es">Continuar →</button>
+  <button id="torch-skip" class="lang-en" style="display:none" data-lang="en">Continue →</button>
+</div>
+
+<!-- ════════ LANG SWITCHER ════════ -->
+<button id="lang-btn" aria-label="Switch language">EN / ES</button>
+
+<!-- ════════ SOCIAL FLOATING ════════ -->
+<div id="social-btns">
+  <a class="social-dot wa" href="https://wa.me/573016704233" target="_blank" rel="noopener" aria-label="WhatsApp">
+    <svg viewBox="0 0 24 24"><path d="M20.52 3.48A11.93 11.93 0 0 0 12 0C5.37 0 0 5.37 0 12c0 2.12.55 4.18 1.6 6L0 24l6.18-1.62A11.94 11.94 0 0 0 12 24c6.63 0 12-5.37 12-12 0-3.2-1.25-6.21-3.48-8.52zM12 22c-1.85 0-3.67-.5-5.25-1.44l-.38-.22-3.67.96.98-3.58-.25-.38A10 10 0 0 1 2 12C2 6.48 6.48 2 12 2a9.93 9.93 0 0 1 7.07 2.93A9.93 9.93 0 0 1 22 12c0 5.52-4.48 10-10 10zm5.42-7.48c-.3-.15-1.75-.86-2.02-.96-.27-.1-.47-.15-.67.15s-.77.96-.95 1.16c-.17.2-.35.22-.65.07a8.18 8.18 0 0 1-2.4-1.48 9.1 9.1 0 0 1-1.66-2.07c-.17-.3-.02-.46.13-.61.13-.13.3-.35.45-.52.15-.17.2-.3.3-.5.1-.2.05-.37-.02-.52-.07-.15-.67-1.6-.92-2.2-.24-.57-.48-.5-.67-.5-.17 0-.37-.02-.57-.02s-.52.07-.8.37c-.27.3-1.04 1.02-1.04 2.48s1.07 2.88 1.22 3.08c.15.2 2.1 3.2 5.09 4.49.71.3 1.27.49 1.7.63.72.23 1.37.2 1.88.12.57-.09 1.75-.72 2-1.41.25-.7.25-1.3.17-1.41-.07-.12-.27-.2-.57-.35z"/></svg>
+  </a>
+  <a class="social-dot ig" href="https://instagram.com/eso_cocina" target="_blank" rel="noopener" aria-label="Instagram">
+    <svg viewBox="0 0 24 24"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><circle cx="12" cy="12" r="5"/><circle cx="17.5" cy="6.5" r="1.5"/></svg>
+  </a>
+</div>
+
+<!-- ════════ 1. COUNTDOWN ════════ -->
+<section id="countdown-section">
+  <div class="logo-wrap">
+    <img src="https://i.ibb.co/Cpw73NF1/Eso.webp"
+         onerror="this.onerror=null"
+         alt="ESO Cocina Contemporánea">
+  </div>
+  <p class="cd-label">
+    <span data-lang="es">Próxima Apertura</span>
+    <span data-lang="en">Opening Soon</span>
+  </p>
+  <h2 class="cd-title">
+    <span data-lang="es">Nos vemos en<br><em>Noviembre 2027</em></span>
+    <span data-lang="en">See you in<br><em>November 2027</em></span>
+  </h2>
+  <div class="countdown" id="countdown">
+    <div class="cd-unit">
+      <span class="cd-num" id="cd-days">000</span>
+      <span class="cd-lbl" data-lang="es">Días</span>
+      <span class="cd-lbl" data-lang="en">Days</span>
+    </div>
+    <span class="cd-sep">:</span>
+    <div class="cd-unit">
+      <span class="cd-num" id="cd-hours">00</span>
+      <span class="cd-lbl" data-lang="es">Horas</span>
+      <span class="cd-lbl" data-lang="en">Hours</span>
+    </div>
+    <span class="cd-sep">:</span>
+    <div class="cd-unit">
+      <span class="cd-num" id="cd-mins">00</span>
+      <span class="cd-lbl" data-lang="es">Min</span>
+      <span class="cd-lbl" data-lang="en">Min</span>
+    </div>
+    <span class="cd-sep">:</span>
+    <div class="cd-unit">
+      <span class="cd-num" id="cd-secs">00</span>
+      <span class="cd-lbl" data-lang="es">Seg</span>
+      <span class="cd-lbl" data-lang="en">Sec</span>
+    </div>
+  </div>
+  <div class="gold-line"></div>
+  <p class="cd-sub">Cartagena, Colombia &nbsp;✦&nbsp; ESO Cocina Contemporánea</p>
+</section>
+
+<!-- ════════ 2. CHEF ════════ -->
+<section id="chef-section">
+  <div class="chef-header">
+    <p class="chef-tag">
+      <span data-lang="es">El Alma Detrás de ESO</span>
+      <span data-lang="en">The Soul Behind ESO</span>
+    </p>
+    <h2 class="chef-name">Sebastián</h2>
+    <p class="chef-role">
+      <span data-lang="es">Chef & CEO · ESO Cocina Contemporánea</span>
+      <span data-lang="en">Chef & CEO · ESO Contemporary Cuisine</span>
+    </p>
+  </div>
+  <div class="chef-row">
+    <div class="chef-img-col">
+      <img class="chef-img"
+           src="https://i.ibb.co/6Jw1mLSZ/Chat-GPT-Image-22-jun-2026-07-01-03-p-m.png"
+           onerror="this.onerror=null"
+           alt="Chef Sebastián">
+    </div>
+    <div class="chef-text-col">
+      <div class="chef-divider"></div>
+      <div class="chef-body">
+        <p data-lang="es">
+          Sebastián es el cocinero y la mente creativa detrás de <em>ESO</em>. Su cocina nace de la memoria del Caribe colombiano y se transforma con técnica contemporánea.
+        </p>
+        <p data-lang="es">
+          Ingredientes locales, productores pequeños, sabores que nos pertenecen — presentados de forma ligera, moderna y profundamente nuestra.
+        </p>
+        <p data-lang="en">
+          Sebastián is the chef and creative mind behind <em>ESO</em>. His cuisine is rooted in Caribbean Colombian memory, transformed through contemporary technique.
+        </p>
+        <p data-lang="en">
+          Local ingredients, small producers, flavors that belong to us — presented lightly, modernly, and deeply ours.
+        </p>
+      </div>
+      <blockquote class="chef-quote" data-lang="es">"Alta cocina con alma local."</blockquote>
+      <blockquote class="chef-quote" data-lang="en">"Fine dining with a local soul."</blockquote>
+    </div>
+  </div>
+</section>
+
+<!-- ════════ 3. BRAND STORY ════════ -->
+<section id="story-section">
+  <p class="story-label">
+    <span data-lang="es">La Historia</span>
+    <span data-lang="en">Our Story</span>
+  </p>
+  <p class="story-text" data-lang="es">
+    Hay cosas que no tienen nombre, pero todos las recordamos.<br>
+    Un olor, un sabor, una palabra que se escapa entre los dientes: <em>"eso…"</em><br><br>
+    ESO nace de la memoria, del antojo, de la raíz.<br>
+    Pero también de la mirada nueva, del deseo de transformar lo cotidiano en extraordinario.<br><br>
+    En ESO, hacemos <em>alta cocina con alma local</em>. Apostamos por ingredientes colombianos, por productores pequeños, por sabores que nos pertenecen.
+  </p>
+  <p class="story-text" data-lang="en">
+    Some things have no name, but we all remember them.<br>
+    A smell, a taste, a word that slips between your teeth: <em>"that…"</em><br><br>
+    ESO is born from memory, craving, and roots.<br>
+    But also from a fresh perspective — a desire to transform the everyday into the extraordinary.<br><br>
+    At ESO, we practice <em>fine dining with a local soul</em>. We champion Colombian ingredients, small producers, flavors that belong to us.
+  </p>
+  <p class="story-tagline" data-lang="es">ESO no se explica. Se siente. Se prueba. Se recuerda.</p>
+  <p class="story-tagline" data-lang="en">ESO isn't explained. It's felt. Tasted. Remembered.</p>
+</section>
+
+<!-- ════════ 4. VALUES CAROUSEL ════════ -->
+<section id="values-section">
+  <p class="values-label">
+    <span data-lang="es">Lo que nos define</span>
+    <span data-lang="en">What defines us</span>
+  </p>
+  <div class="carousel-wrap">
+    <div class="carousel-track" id="carouselTrack"></div>
+  </div>
+</section>
+
+<!-- ════════ FOOTER ════════ -->
+<footer>
+  <img class="footer-logo"
+       src="https://i.ibb.co/Cpw73NF1/Eso.webp"
+       onerror="this.onerror=null"
+       alt="ESO">
+  <p class="footer-tagline" data-lang="es">ESO no se explica. Se recuerda.</p>
+  <p class="footer-tagline" data-lang="en">ESO isn't explained. It's remembered.</p>
+  <div class="footer-links">
+    <a class="footer-link" href="https://instagram.com/eso_cocina" target="_blank" rel="noopener">
+      <svg viewBox="0 0 24 24"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><circle cx="12" cy="12" r="5"/><circle cx="17.5" cy="6.5" r="1.5"/></svg>
+      @eso_cocina
+    </a>
+    <span style="color:rgba(237,232,225,0.12)">·</span>
+    <a class="footer-link" href="https://wa.me/573016704233" target="_blank" rel="noopener">
+      <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12c0 1.9.52 3.67 1.42 5.19L2 22l4.94-1.39A9.93 9.93 0 0 0 12 22c5.52 0 10-4.48 10-10S17.52 2 12 2z"/></svg>
+      +57 301 670 4233
+    </a>
+  </div>
+  <p class="footer-copy">
+    © 2026 ESO Cocina Contemporánea<br>
+    Cartagena, Colombia &nbsp;·&nbsp;
+    <span data-lang="es">Próxima apertura Noviembre 2027</span>
+    <span data-lang="en">Opening November 2027</span>
+  </p>
+</footer>
+
+<script>
+/* ══ COUNTDOWN SHARED ══ */
+const TARGET = new Date('2027-11-01T20:00:00');
+function calcCD(){
+  const diff = TARGET - new Date();
+  if(diff<=0) return null;
+  return{
+    d:Math.floor(diff/86400000),
+    h:Math.floor((diff%86400000)/3600000),
+    m:Math.floor((diff%3600000)/60000),
+    s:Math.floor((diff%60000)/1000)
+  };
+}
+function pad(n,l){return String(n).padStart(l,'0')}
+
+function updateAll(){
+  const t=calcCD();
+  if(!t) return;
+  // main countdown
+  document.getElementById('cd-days').textContent=pad(t.d,3);
+  document.getElementById('cd-hours').textContent=pad(t.h,2);
+  document.getElementById('cd-mins').textContent=pad(t.m,2);
+  document.getElementById('cd-secs').textContent=pad(t.s,2);
+  // torch overlay countdown
+  document.getElementById('t-days').textContent=pad(t.d,3);
+  document.getElementById('t-hours').textContent=pad(t.h,2);
+  document.getElementById('t-mins').textContent=pad(t.m,2);
+  document.getElementById('t-secs').textContent=pad(t.s,2);
+}
+updateAll();
+setInterval(updateAll,1000);
+
+/* ══ TORCH / FIRE OVERLAY ══ */
+const overlay   = document.getElementById('torch-overlay');
+const skipBtn   = document.getElementById('torch-skip');
+const fireCanvas= document.getElementById('fire-canvas');
+const fCtx      = fireCanvas.getContext('2d');
+let torchDismissed = false;
+let torchX = window.innerWidth/2;
+let torchY = window.innerHeight/2;
+let hasTouched = false;
+
+/* Resize canvas */
+function resizeFire(){
+  fireCanvas.width  = window.innerWidth;
+  fireCanvas.height = window.innerHeight;
+}
+resizeFire();
+window.addEventListener('resize', resizeFire);
+
+/* ── FIRE PARTICLES ── */
+const MAX_P = 90;
+let fireParticles = [];
+
+function spawnFireParticle(x, y){
+  const angle = -Math.PI/2 + (Math.random()-0.5)*0.9; // mostly upward
+  const speed = 0.6 + Math.random()*2.2;
+  fireParticles.push({
+    x, y,
+    vx: Math.cos(angle)*speed*(0.6+Math.random()),
+    vy: Math.sin(angle)*speed - Math.random()*0.5,
+    life: 1,
+    decay: 0.012 + Math.random()*0.022,
+    size: 4 + Math.random()*14,
+    // colour varies from deep red → orange → gold
+    hue: 10 + Math.random()*35,
+    sat: 80 + Math.random()*20,
+  });
+}
+
+function drawFire(){
+  // don't clear fully — leave a dark fade trail
+  fCtx.fillStyle = 'rgba(0,0,0,0.18)';
+  fCtx.fillRect(0,0,fireCanvas.width,fireCanvas.height);
+
+  if(!torchDismissed && hasTouched){
+    // spawn several particles per frame at touch pos + slight wobble
+    for(let i=0;i<4;i++){
+      const ox = (Math.random()-0.5)*18;
+      const oy = (Math.random()-0.5)*10;
+      spawnFireParticle(torchX+ox, torchY+oy);
+    }
+  }
+
+  // trim
+  if(fireParticles.length > MAX_P) fireParticles.splice(0, fireParticles.length-MAX_P);
+
+  fireParticles.forEach((p,i)=>{
+    p.x  += p.vx;
+    p.y  += p.vy;
+    p.vy -= 0.06;           // rise
+    p.vx *= 0.98;           // slight drag
+    p.size *= 0.97;         // shrink
+    p.life -= p.decay;
+
+    if(p.life <= 0){ fireParticles.splice(i,1); return; }
+
+    // colour shifts from red→orange→golden→transparent as life drops
+    const lifeRatio = p.life;
+    const bright = 30 + lifeRatio*50;
+    fCtx.save();
+    fCtx.globalAlpha = lifeRatio * 0.75;
+    fCtx.beginPath();
+
+    // radial gradient for each ember — warm core, transparent edge
+    const grd = fCtx.createRadialGradient(p.x,p.y,0, p.x,p.y, p.size);
+    grd.addColorStop(0,   `hsla(${p.hue+lifeRatio*20},${p.sat}%,${bright+20}%,1)`);
+    grd.addColorStop(0.4, `hsla(${p.hue},${p.sat}%,${bright}%,0.7)`);
+    grd.addColorStop(1,   `hsla(${p.hue-10},60%,20%,0)`);
+    fCtx.fillStyle = grd;
+    fCtx.arc(p.x, p.y, p.size, 0, Math.PI*2);
+    fCtx.fill();
+    fCtx.restore();
+  });
+
+  // Update the CSS vignette position (--tx / --ty in %)
+  const pctX = (torchX/fireCanvas.width*100).toFixed(1)+'%';
+  const pctY = (torchY/fireCanvas.height*100).toFixed(1)+'%';
+  overlay.style.setProperty('--tx', pctX);
+  overlay.style.setProperty('--ty', pctY);
+
+  if(!torchDismissed) requestAnimationFrame(drawFire);
+}
+requestAnimationFrame(drawFire);
+
+/* ── INPUT ── */
+function setTorchPos(x,y){
+  torchX = x; torchY = y;
+  if(!hasTouched){
+    hasTouched = true;
+    overlay.classList.add('touched');
+  }
+}
+
+overlay.addEventListener('touchmove', e=>{
+  e.preventDefault();
+  const t=e.touches[0];
+  setTorchPos(t.clientX, t.clientY);
+},{passive:false});
+
+overlay.addEventListener('touchstart', e=>{
+  const t=e.touches[0];
+  setTorchPos(t.clientX, t.clientY);
+},{passive:true});
+
+overlay.addEventListener('mousemove', e=>{
+  setTorchPos(e.clientX, e.clientY);
+});
+
+/* ── DISMISS ── */
+function dismissTorch(){
+  if(torchDismissed) return;
+  torchDismissed = true;
+  overlay.classList.add('fade-out');
+  setTimeout(()=>{ overlay.style.display='none'; },1000);
+}
+
+let tapCount=0;
+overlay.addEventListener('touchend',()=>{ if(++tapCount>=3) dismissTorch(); });
+overlay.addEventListener('click',()=>{ if(++tapCount>=3) dismissTorch(); });
+skipBtn.addEventListener('click',e=>{ e.stopPropagation(); dismissTorch(); });
+window.addEventListener('scroll',()=>{ if(!torchDismissed) dismissTorch(); },{once:true,passive:true});
+setTimeout(()=>dismissTorch(), 11000);
+
+/* ══ LANG SWITCHER ══ */
+const body=document.getElementById('body-root');
+const langBtn=document.getElementById('lang-btn');
+let currentLang='es';
+langBtn.addEventListener('click',()=>{
+  currentLang = currentLang==='es'?'en':'es';
+  body.className = 'lang-'+currentLang;
+  langBtn.textContent = currentLang==='es'?'EN / ES':'ES / EN';
+});
+
+/* ══ VALUES CAROUSEL ══ */
+const values=[
+  {name:{es:'Excelencia',en:'Excellence'}, svg:'<polyline points="20 6 9 17 4 12"/>'},
+  {name:{es:'Calidad',en:'Quality'}, svg:'<path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>'},
+  {name:{es:'Servicio',en:'Service'}, svg:'<path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>'},
+  {name:{es:'Pasión',en:'Passion'}, svg:'<path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>'},
+  {name:{es:'Raíces',en:'Roots'}, svg:'<path d="M12 22V12M12 12C12 12 7 10 7 5a5 5 0 0 1 10 0c0 5-5 7-5 7z"/>'},
+  {name:{es:'Innovación',en:'Innovation'}, svg:'<circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>'},
+  {name:{es:'Sabor',en:'Flavor'}, svg:'<path d="M18 8h1a4 4 0 0 1 0 8h-1"/><path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"/><line x1="6" y1="1" x2="6" y2="4"/><line x1="10" y1="1" x2="10" y2="4"/><line x1="14" y1="1" x2="14" y2="4"/>'},
+  {name:{es:'Frescura',en:'Freshness'}, svg:'<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>'},
+  {name:{es:'Caribe',en:'Caribbean'}, svg:'<circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>'},
+  {name:{es:'Creatividad',en:'Creativity'}, svg:'<circle cx="13.5" cy="6.5" r="2.5"/><path d="M2 20l7.5-7.5M22 4l-7.5 7.5M9.5 12.5L12 17l3-3-3.5-1.5z"/>'},
+];
+
+const track=document.getElementById('carouselTrack');
+function buildCarousel(lang){
+  track.innerHTML='';
+  [...values,...values].forEach(v=>{
+    const chip=document.createElement('div');
+    chip.className='value-chip';
+    chip.innerHTML=`<svg viewBox="0 0 24 24">${v.svg}</svg><span class="value-name">${v.name[lang]||v.name.es}</span>`;
+    track.appendChild(chip);
+  });
+}
+buildCarousel('es');
+
+// Re-build carousel on lang switch
+langBtn.addEventListener('click',()=>{
+  setTimeout(()=>buildCarousel(currentLang),10);
+});
+</script>
+</body>
+</html>
