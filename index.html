@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="es" id="html-root">
 <head>
@@ -26,393 +27,290 @@ body{
 }
 
 /* ════════════════════════════════
-   TORCH / DARK INTRO OVERLAY
+   TORCH OVERLAY — PREMIUM MOBILE
 ════════════════════════════════ */
 #torch-overlay{
-  position:fixed;
-  inset:0;
-  z-index:900;
+  position:fixed;inset:0;z-index:900;
   background:#000;
-  display:flex;
-  flex-direction:column;
-  align-items:center;
-  justify-content:center;
+  display:flex;flex-direction:column;
+  align-items:center;justify-content:center;
   touch-action:none;
-  cursor:none;
-  transition:opacity 1s ease;
+  transition:opacity 1.4s ease;
   overflow:hidden;
 }
 #torch-overlay.fade-out{opacity:0;pointer-events:none}
 
-/* Canvas for fire particle effect */
-#fire-canvas{
-  position:absolute;
-  inset:0;
+/* glow canvas */
+#glow-canvas{
+  position:absolute;inset:0;
   width:100%;height:100%;
   pointer-events:none;
 }
 
-/* Dark vignette over canvas so edges stay black */
-#torch-overlay::after{
-  content:'';
-  position:absolute;
-  inset:0;
-  background:radial-gradient(ellipse at var(--tx,50%) var(--ty,50%),
-    transparent 0%,
-    transparent 18%,
-    rgba(0,0,0,0.55) 38%,
-    rgba(0,0,0,0.88) 60%,
-    #000 80%);
+/* vignette — edges always black, center opens where user touches */
+#torch-vignette{
+  position:absolute;inset:0;
   pointer-events:none;
-  transition:--tx 0.05s, --ty 0.05s;
+  z-index:1;
+  background:radial-gradient(circle 160px at 50% 50%,
+    transparent 0%,
+    rgba(0,0,0,0.5) 60%,
+    rgba(0,0,0,0.95) 100%);
+  transition:background 0.08s linear;
 }
 
-/* Content (logo + countdown) sits above canvas */
+/* content above canvas */
 #torch-cd{
-  position:absolute;
-  top:50%;left:50%;
+  position:absolute;top:50%;left:50%;
   transform:translate(-50%,-50%);
-  text-align:center;
-  pointer-events:none;
-  width:90vw;
-  z-index:2;
+  text-align:center;pointer-events:none;
+  width:88vw;z-index:2;
 }
 .torch-logo{
-  width:170px;
-  height:auto;
-  margin:0 auto 1.6rem;
-  display:block;
+  width:180px;height:auto;
+  margin:0 auto 1.8rem;display:block;
   filter:brightness(0) invert(1);
-  opacity:0.05;
-  transition:opacity 0.5s ease;
+  opacity:0.04;
+  transition:opacity 0.6s ease;
 }
 .torch-num-row{
-  display:flex;
-  align-items:flex-start;
-  justify-content:center;
-  gap:0.5rem;
+  display:flex;align-items:flex-start;
+  justify-content:center;gap:0.5rem;
 }
 .torch-unit{display:flex;flex-direction:column;align-items:center}
 .torch-num{
-  font-size:clamp(2.6rem,11vw,4rem);
-  font-weight:300;
-  color:var(--gold-light);
-  line-height:1;
-  opacity:0.04;
-  transition:opacity 0.4s ease;
-  text-shadow:none;
+  font-size:clamp(2.4rem,10vw,3.8rem);
+  font-weight:300;color:var(--gold-light);
+  line-height:1;opacity:0.03;
+  transition:opacity 0.5s ease;
 }
 .torch-sep{
-  font-size:clamp(2rem,8vw,3rem);
+  font-size:clamp(1.8rem,7vw,2.8rem);
   color:rgba(184,151,90,0.3);
-  line-height:1;
-  padding-top:0.05em;
-  font-weight:200;
-  opacity:0.04;
-  transition:opacity 0.4s ease;
+  line-height:1;padding-top:0.05em;
+  font-weight:200;opacity:0.03;
+  transition:opacity 0.5s ease;
 }
 .torch-lbl{
-  font-size:0.48rem;
-  letter-spacing:0.35em;
+  font-size:0.44rem;letter-spacing:0.35em;
   text-transform:uppercase;
   color:rgba(237,232,225,0.3);
-  margin-top:0.3rem;
-  opacity:0.04;
-  transition:opacity 0.4s ease;
+  margin-top:0.3rem;opacity:0.03;
+  transition:opacity 0.5s ease;
 }
 
-/* HINT TEXT — glows to guide the user */
+/* HINT — glows like an ember */
 .torch-hint{
-  margin-top:2rem;
-  font-size:0.58rem;
-  letter-spacing:0.45em;
-  text-transform:uppercase;
-  color:#fff;
-  animation:hintGlow 2.4s ease-in-out infinite;
-  position:relative;
-  z-index:3;
+  margin-top:2.2rem;
+  font-size:0.55rem;letter-spacing:0.5em;
+  text-transform:uppercase;color:#d4a96a;
+  animation:emberPulse 3s ease-in-out infinite;
+  position:relative;z-index:3;
 }
-@keyframes hintGlow{
-  0%,100%{
-    opacity:0.18;
-    text-shadow:none;
-  }
-  50%{
-    opacity:0.95;
+@keyframes emberPulse{
+  0%,100%{opacity:0.15;text-shadow:none}
+  40%{opacity:0.5;text-shadow:0 0 6px rgba(210,140,40,0.5)}
+  55%{
+    opacity:1;
     text-shadow:
-      0 0 8px rgba(220,160,60,0.9),
-      0 0 20px rgba(220,130,30,0.6),
-      0 0 40px rgba(180,90,10,0.35);
+      0 0 6px rgba(255,180,60,1),
+      0 0 16px rgba(220,120,20,0.7),
+      0 0 32px rgba(180,70,5,0.4);
   }
+  70%{opacity:0.4;text-shadow:0 0 4px rgba(200,120,30,0.3)}
 }
 
-/* Reveal content as torch moves */
-#torch-overlay.touched .torch-logo{opacity:0.88}
-#torch-overlay.touched .torch-num{
-  opacity:1;
-  text-shadow:0 0 18px rgba(212,176,122,0.5);
-}
-#torch-overlay.touched .torch-sep{opacity:0.7}
-#torch-overlay.touched .torch-lbl{opacity:0.55}
+/* reveal on touch */
+#torch-overlay.lit .torch-logo{opacity:0.9}
+#torch-overlay.lit .torch-num{opacity:1;text-shadow:0 0 20px rgba(212,176,122,0.35)}
+#torch-overlay.lit .torch-sep{opacity:0.6}
+#torch-overlay.lit .torch-lbl{opacity:0.5}
 
-/* skip button */
 #torch-skip{
-  position:absolute;
-  bottom:2rem;right:1.5rem;
-  font-size:0.52rem;
-  letter-spacing:0.38em;
+  position:absolute;bottom:2rem;right:1.5rem;
+  font-size:0.5rem;letter-spacing:0.38em;
   text-transform:uppercase;
-  color:rgba(237,232,225,0.28);
-  border:1px solid rgba(237,232,225,0.1);
-  padding:0.5rem 1rem;
-  border-radius:2px;
-  background:transparent;
-  cursor:pointer;
-  -webkit-tap-highlight-color:transparent;
-  z-index:3;
+  color:rgba(237,232,225,0.22);
+  border:1px solid rgba(237,232,225,0.08);
+  padding:0.5rem 1rem;border-radius:2px;
+  background:transparent;cursor:pointer;
+  -webkit-tap-highlight-color:transparent;z-index:3;
 }
 
 /* ════════════════════════════════
    LANG SWITCHER
 ════════════════════════════════ */
 #lang-btn{
-  position:fixed;
-  top:1.2rem;right:1.2rem;
-  z-index:800;
+  position:fixed;top:1.2rem;right:1.2rem;z-index:800;
   background:rgba(10,9,7,0.85);
-  border:1px solid var(--gold-dim);
-  border-radius:3px;
+  border:1px solid var(--gold-dim);border-radius:3px;
   padding:0.4rem 0.75rem;
-  font-size:0.55rem;
-  letter-spacing:0.3em;
-  text-transform:uppercase;
-  color:rgba(237,232,225,0.55);
-  cursor:pointer;
+  font-size:0.52rem;letter-spacing:0.3em;text-transform:uppercase;
+  color:rgba(237,232,225,0.5);cursor:pointer;
   -webkit-tap-highlight-color:transparent;
   backdrop-filter:blur(6px);
   transition:color 0.3s,border-color 0.3s;
+  font-family:'Montserrat',sans-serif;
 }
 #lang-btn:active{color:var(--gold);border-color:var(--gold)}
 
 /* ════════════════════════════════
-   FLOATING SOCIAL BUTTONS
+   FLOATING SOCIAL
 ════════════════════════════════ */
 #social-btns{
-  position:fixed;
-  bottom:1.6rem;right:1.2rem;
-  z-index:800;
-  display:flex;
-  flex-direction:column;
-  gap:0.65rem;
+  position:fixed;bottom:1.6rem;right:1.2rem;
+  z-index:800;display:flex;flex-direction:column;gap:0.65rem;
 }
 .social-dot{
-  width:46px;height:46px;
-  border-radius:50%;
+  width:46px;height:46px;border-radius:50%;
   display:flex;align-items:center;justify-content:center;
   text-decoration:none;
-  box-shadow:0 2px 16px rgba(0,0,0,0.4);
-  transition:transform 0.2s ease;
+  box-shadow:0 2px 16px rgba(0,0,0,0.5);
+  transition:transform 0.18s ease;
 }
-.social-dot:active{transform:scale(0.92)}
+.social-dot:active{transform:scale(0.9)}
 .social-dot.wa{background:#25D366}
-.social-dot.ig{background:radial-gradient(circle at 30% 107%, #fdf497 0%, #fd5949 45%, #d6249f 60%, #285AEB 90%)}
+.social-dot.ig{background:radial-gradient(circle at 30% 107%,#fdf497 0%,#fd5949 45%,#d6249f 60%,#285AEB 90%)}
 .social-dot svg{width:22px;height:22px;fill:#fff}
 
 /* ════════════════════════════════
-   COUNTDOWN SECTION (main)
+   COUNTDOWN MAIN
 ════════════════════════════════ */
 #countdown-section{
-  min-height:100svh;
-  display:flex;
-  flex-direction:column;
-  align-items:center;
-  justify-content:center;
+  min-height:100svh;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;
   padding:3rem 1.5rem;
-  background:var(--black);
-  position:relative;
-  overflow:hidden;
+  background:var(--black);position:relative;overflow:hidden;
 }
 #countdown-section::before{
-  content:'';
-  position:absolute;
-  inset:0;
-  background:radial-gradient(ellipse at 50% 55%, rgba(184,151,90,0.08) 0%, transparent 65%);
+  content:'';position:absolute;inset:0;
+  background:radial-gradient(ellipse at 50% 55%,rgba(184,151,90,0.07) 0%,transparent 65%);
   pointer-events:none;
 }
-
 .logo-wrap{
-  margin-bottom:2rem;
-  opacity:0;
+  margin-bottom:2rem;opacity:0;
   animation:fadeUp 1s ease 0.2s forwards;
 }
-/* HORIZONTAL logo — wider */
-.logo-wrap img{
-  width:200px;
-  height:auto;
-  display:block;
-  object-fit:contain;
-}
-
+.logo-wrap img{width:200px;height:auto;display:block;object-fit:contain}
 .cd-label{
-  font-size:0.58rem;
-  letter-spacing:0.5em;
-  text-transform:uppercase;
-  color:rgba(184,151,90,0.65);
-  margin-bottom:0.8rem;
-  opacity:0;
-  animation:fadeUp 1s ease 0.5s forwards;
+  font-size:0.56rem;letter-spacing:0.5em;text-transform:uppercase;
+  color:rgba(184,151,90,0.65);margin-bottom:0.8rem;
+  opacity:0;animation:fadeUp 1s ease 0.5s forwards;
 }
 .cd-title{
-  font-family:'Cormorant Garamond',serif;
-  font-weight:300;
-  font-size:clamp(2rem,8.5vw,3rem);
-  line-height:1.15;
-  text-align:center;
-  margin-bottom:2.2rem;
-  opacity:0;
-  animation:fadeUp 1s ease 0.7s forwards;
+  font-family:'Cormorant Garamond',serif;font-weight:300;
+  font-size:clamp(1.9rem,8vw,2.9rem);line-height:1.15;
+  text-align:center;margin-bottom:2.2rem;
+  opacity:0;animation:fadeUp 1s ease 0.7s forwards;
 }
 .cd-title em{font-style:italic;color:var(--gold)}
-
 .countdown{
-  display:flex;
-  align-items:flex-start;
-  gap:0.5rem;
-  margin-bottom:2.2rem;
-  opacity:0;
-  animation:fadeUp 1s ease 0.9s forwards;
+  display:flex;align-items:flex-start;gap:0.5rem;
+  margin-bottom:2rem;opacity:0;animation:fadeUp 1s ease 0.9s forwards;
 }
 .cd-unit{display:flex;flex-direction:column;align-items:center}
 .cd-num{
-  font-weight:300;
-  font-size:clamp(2.2rem,9.5vw,3.4rem);
-  color:var(--gold-light);
-  line-height:1;
-  letter-spacing:-0.02em;
+  font-weight:300;font-size:clamp(2.1rem,9vw,3.2rem);
+  color:var(--gold-light);line-height:1;letter-spacing:-0.02em;
 }
 .cd-lbl{
-  font-size:0.48rem;
-  letter-spacing:0.35em;
-  text-transform:uppercase;
-  color:rgba(237,232,225,0.3);
-  margin-top:0.3rem;
+  font-size:0.44rem;letter-spacing:0.35em;text-transform:uppercase;
+  color:rgba(237,232,225,0.28);margin-top:0.3rem;
 }
 .cd-sep{
-  font-size:clamp(1.6rem,7vw,2.6rem);
-  color:rgba(184,151,90,0.35);
-  line-height:1;
-  padding-top:0.05em;
-  font-weight:200;
+  font-size:clamp(1.5rem,6.5vw,2.4rem);
+  color:rgba(184,151,90,0.3);line-height:1;padding-top:0.05em;font-weight:200;
 }
 .gold-line{
-  width:36px;height:1px;
-  background:var(--gold);
-  opacity:0;
-  animation:fadeIn 1s ease 1.3s forwards;
-  margin-bottom:1.2rem;
+  width:36px;height:1px;background:var(--gold);
+  opacity:0;animation:fadeIn 1s ease 1.3s forwards;margin-bottom:1.2rem;
 }
 .cd-sub{
-  font-size:0.6rem;
-  letter-spacing:0.4em;
-  text-transform:uppercase;
-  color:rgba(237,232,225,0.25);
-  text-align:center;
-  opacity:0;
-  animation:fadeIn 1s ease 1.5s forwards;
+  font-size:0.58rem;letter-spacing:0.4em;text-transform:uppercase;
+  color:rgba(237,232,225,0.22);text-align:center;
+  opacity:0;animation:fadeIn 1s ease 1.5s forwards;
 }
 
 /* ════════════════════════════════
-   CHEF SECTION — compact mobile
+   CHEF SECTION
 ════════════════════════════════ */
 #chef-section{
   padding:3.5rem 1.4rem;
   background:linear-gradient(180deg,var(--black) 0%,#0f0d0b 100%);
 }
-
-/* Header above the row */
-.chef-header{
-  text-align:center;
-  margin-bottom:1.6rem;
-}
+.chef-header{text-align:center;margin-bottom:1.6rem}
 .chef-tag{
-  font-size:0.52rem;
-  letter-spacing:0.5em;
-  text-transform:uppercase;
-  color:var(--gold);
-  margin-bottom:0.5rem;
+  font-size:0.5rem;letter-spacing:0.5em;text-transform:uppercase;
+  color:var(--gold);margin-bottom:0.5rem;
 }
 .chef-name{
-  font-family:'Cormorant Garamond',serif;
-  font-weight:300;
-  font-size:clamp(1.9rem,7vw,2.6rem);
-  line-height:1.1;
-  color:var(--cream);
+  font-family:'Cormorant Garamond',serif;font-weight:300;
+  font-size:clamp(1.9rem,7vw,2.6rem);line-height:1.1;color:var(--cream);
 }
 .chef-role{
-  font-size:0.52rem;
-  letter-spacing:0.38em;
-  text-transform:uppercase;
-  color:rgba(237,232,225,0.35);
-  margin-top:0.35rem;
+  font-size:0.5rem;letter-spacing:0.38em;text-transform:uppercase;
+  color:rgba(237,232,225,0.32);margin-top:0.35rem;
 }
-
-/* side-by-side row */
-.chef-row{
-  display:flex;
-  gap:1.1rem;
-  align-items:flex-start;
-}
-.chef-img-col{
-  flex:0 0 42%;
-  position:relative;
-}
+.chef-row{display:flex;gap:1.1rem;align-items:flex-start}
+.chef-img-col{flex:0 0 42%;position:relative}
 .chef-img-col::after{
-  content:'';
-  position:absolute;
-  top:0;left:0;right:0;
-  height:40%;
-  background:linear-gradient(to bottom,rgba(184,151,90,0.12),transparent);
-  border-radius:4px 4px 0 0;
-  pointer-events:none;
+  content:'';position:absolute;top:0;left:0;right:0;height:35%;
+  background:linear-gradient(to bottom,rgba(184,151,90,0.1),transparent);
+  border-radius:4px 4px 0 0;pointer-events:none;
 }
-.chef-img{
-  width:100%;
-  border-radius:4px;
-  display:block;
-  filter:grayscale(10%) contrast(1.05);
-}
-.chef-text-col{
-  flex:1;
-  display:flex;
-  flex-direction:column;
-  justify-content:flex-start;
-}
-.chef-divider{
-  width:28px;height:1px;
-  background:var(--gold);
-  opacity:0.5;
-  margin-bottom:0.9rem;
-}
-.chef-body{
-  font-size:0.78rem;
-  line-height:1.85;
-  color:rgba(237,232,225,0.58);
-}
-.chef-body p+p{margin-top:0.9rem}
+.chef-img{width:100%;border-radius:4px;display:block;filter:grayscale(10%) contrast(1.05)}
+.chef-text-col{flex:1;display:flex;flex-direction:column}
+.chef-divider{width:26px;height:1px;background:var(--gold);opacity:0.5;margin-bottom:0.9rem}
+.chef-body{font-size:0.75rem;line-height:1.88;color:rgba(237,232,225,0.55)}
+.chef-body p+p{margin-top:0.85rem}
 .chef-body em{font-style:italic;color:var(--gold-light)}
 .chef-quote{
-  margin-top:1.2rem;
-  padding-left:0.8rem;
-  border-left:1px solid rgba(184,151,90,0.4);
-  font-family:'Cormorant Garamond',serif;
-  font-style:italic;
-  font-size:0.9rem;
-  color:rgba(184,151,90,0.7);
-  line-height:1.6;
+  margin-top:1.1rem;padding-left:0.75rem;
+  border-left:1px solid rgba(184,151,90,0.35);
+  font-family:'Cormorant Garamond',serif;font-style:italic;
+  font-size:0.88rem;color:rgba(184,151,90,0.65);line-height:1.6;
 }
 
 /* ════════════════════════════════
-   BRAND STORY SECTION
+   COLOMBIA GASTRONOMY SECTION
+════════════════════════════════ */
+#colombia-section{
+  padding:3.5rem 1.5rem;
+  background:#0c0a08;
+  border-top:1px solid var(--gold-dim);
+}
+.col-label{
+  font-size:0.5rem;letter-spacing:0.5em;text-transform:uppercase;
+  color:rgba(184,151,90,0.5);margin-bottom:1.4rem;text-align:center;
+}
+.col-title{
+  font-family:'Cormorant Garamond',serif;font-weight:300;
+  font-size:clamp(1.7rem,7vw,2.4rem);line-height:1.2;
+  text-align:center;margin-bottom:1.6rem;
+  color:var(--cream);
+}
+.col-title em{font-style:italic;color:var(--gold)}
+.col-body{
+  font-size:0.8rem;line-height:1.95;
+  color:rgba(237,232,225,0.52);
+  text-align:center;
+}
+.col-body p+p{margin-top:1.1rem}
+.col-body em{color:var(--gold-light);font-style:italic}
+.col-pills{
+  display:flex;flex-wrap:wrap;gap:0.6rem;
+  justify-content:center;margin-top:1.8rem;
+}
+.col-pill{
+  padding:0.4rem 0.9rem;
+  border:1px solid rgba(184,151,90,0.2);
+  border-radius:20px;
+  font-size:0.52rem;letter-spacing:0.3em;text-transform:uppercase;
+  color:rgba(237,232,225,0.4);
+}
+
+/* ════════════════════════════════
+   BRAND STORY
 ════════════════════════════════ */
 #story-section{
   padding:3rem 1.5rem;
@@ -421,166 +319,150 @@ body{
   border-bottom:1px solid var(--gold-dim);
 }
 .story-label{
-  font-size:0.52rem;
-  letter-spacing:0.5em;
-  text-transform:uppercase;
-  color:rgba(184,151,90,0.5);
-  text-align:center;
-  margin-bottom:1.6rem;
+  font-size:0.5rem;letter-spacing:0.5em;text-transform:uppercase;
+  color:rgba(184,151,90,0.45);text-align:center;margin-bottom:1.5rem;
 }
 .story-text{
-  font-family:'Cormorant Garamond',serif;
-  font-weight:300;
-  font-size:clamp(1.05rem,4vw,1.3rem);
-  line-height:1.75;
-  color:rgba(237,232,225,0.62);
-  text-align:center;
+  font-family:'Cormorant Garamond',serif;font-weight:300;
+  font-size:clamp(1rem,4vw,1.25rem);line-height:1.8;
+  color:rgba(237,232,225,0.58);text-align:center;
 }
 .story-text em{color:var(--gold);font-style:italic}
 .story-tagline{
-  margin-top:2rem;
-  font-family:'Montserrat',sans-serif;
-  font-size:0.6rem;
-  letter-spacing:0.45em;
-  text-transform:uppercase;
-  color:var(--gold);
-  text-align:center;
+  margin-top:1.8rem;font-size:0.58rem;
+  letter-spacing:0.45em;text-transform:uppercase;
+  color:var(--gold);text-align:center;
 }
 
 /* ════════════════════════════════
    VALUES CAROUSEL
 ════════════════════════════════ */
-#values-section{
-  padding:3rem 0;
-  background:var(--black);
-  overflow:hidden;
-}
+#values-section{padding:3rem 0;background:var(--black);overflow:hidden}
 .values-label{
-  font-size:0.52rem;
-  letter-spacing:0.5em;
-  text-transform:uppercase;
-  color:rgba(184,151,90,0.45);
-  text-align:center;
-  margin-bottom:1.8rem;
-  padding:0 1.5rem;
+  font-size:0.5rem;letter-spacing:0.5em;text-transform:uppercase;
+  color:rgba(184,151,90,0.4);text-align:center;
+  margin-bottom:1.8rem;padding:0 1.5rem;
 }
 .carousel-wrap{
-  overflow:hidden;
-  width:100%;
+  overflow:hidden;width:100%;
   -webkit-mask:linear-gradient(90deg,transparent 0%,#000 12%,#000 88%,transparent 100%);
   mask:linear-gradient(90deg,transparent 0%,#000 12%,#000 88%,transparent 100%);
 }
-.carousel-track{
-  display:flex;
-  gap:1rem;
-  width:max-content;
-  animation:scrollLeft 26s linear infinite;
-}
-@keyframes scrollLeft{
-  from{transform:translateX(0)}
-  to{transform:translateX(-50%)}
-}
-
+.carousel-track{display:flex;gap:1rem;width:max-content;animation:scrollLeft 28s linear infinite}
+@keyframes scrollLeft{from{transform:translateX(0)}to{transform:translateX(-50%)}}
 .value-chip{
-  display:flex;
-  flex-direction:column;
-  align-items:center;
-  gap:0.6rem;
-  padding:1.15rem 1.3rem;
-  border:1px solid rgba(184,151,90,0.15);
-  border-radius:5px;
-  background:rgba(184,151,90,0.025);
-  min-width:120px;
+  display:flex;flex-direction:column;align-items:center;gap:0.6rem;
+  padding:1.1rem 1.25rem;
+  border:1px solid rgba(184,151,90,0.13);border-radius:5px;
+  background:rgba(184,151,90,0.02);min-width:115px;
 }
-/* SVG icon — single gold color */
 .value-chip svg{
-  width:22px;height:22px;
-  stroke:var(--gold);
-  fill:none;
-  stroke-width:1.4;
-  stroke-linecap:round;
-  stroke-linejoin:round;
-  opacity:0.85;
+  width:20px;height:20px;stroke:var(--gold);
+  fill:none;stroke-width:1.4;stroke-linecap:round;stroke-linejoin:round;opacity:0.8;
 }
 .value-name{
-  font-size:0.55rem;
-  letter-spacing:0.38em;
-  text-transform:uppercase;
-  color:rgba(237,232,225,0.45);
-  white-space:nowrap;
+  font-size:0.52rem;letter-spacing:0.38em;text-transform:uppercase;
+  color:rgba(237,232,225,0.4);white-space:nowrap;
 }
+
+/* ════════════════════════════════
+   NOTIFY SECTION
+════════════════════════════════ */
+#notify-section{
+  padding:3.5rem 1.5rem;
+  background:linear-gradient(180deg,#0c0a08 0%,var(--black) 100%);
+  border-top:1px solid var(--gold-dim);
+}
+.notify-label{
+  font-size:0.5rem;letter-spacing:0.5em;text-transform:uppercase;
+  color:rgba(184,151,90,0.5);text-align:center;margin-bottom:0.9rem;
+}
+.notify-title{
+  font-family:'Cormorant Garamond',serif;font-weight:300;
+  font-size:clamp(1.7rem,6.5vw,2.3rem);line-height:1.2;
+  text-align:center;margin-bottom:0.8rem;color:var(--cream);
+}
+.notify-title em{font-style:italic;color:var(--gold)}
+.notify-sub{
+  font-size:0.72rem;line-height:1.8;
+  color:rgba(237,232,225,0.42);text-align:center;margin-bottom:1.8rem;
+}
+.notify-form{display:flex;flex-direction:column;gap:0.9rem;max-width:360px;margin:0 auto}
+.notify-input{
+  width:100%;padding:0.85rem 1rem;
+  background:rgba(237,232,225,0.04);
+  border:1px solid rgba(184,151,90,0.2);border-radius:3px;
+  color:var(--cream);font-family:'Montserrat',sans-serif;font-weight:200;
+  font-size:0.8rem;letter-spacing:0.05em;outline:none;
+  transition:border-color 0.3s;
+  -webkit-appearance:none;
+}
+.notify-input:focus{border-color:rgba(184,151,90,0.5)}
+.notify-input::placeholder{color:rgba(237,232,225,0.28)}
+.notify-btn{
+  width:100%;padding:0.9rem;
+  background:transparent;
+  border:1px solid var(--gold);border-radius:3px;
+  color:var(--gold);font-family:'Montserrat',sans-serif;font-weight:300;
+  font-size:0.58rem;letter-spacing:0.45em;text-transform:uppercase;
+  cursor:pointer;transition:background 0.3s,color 0.3s;
+  -webkit-tap-highlight-color:transparent;
+}
+.notify-btn:active{background:var(--gold);color:var(--black)}
+#notify-msg{
+  text-align:center;font-size:0.65rem;letter-spacing:0.2em;
+  color:var(--gold);margin-top:0.5rem;
+  min-height:1.2rem;opacity:0;transition:opacity 0.4s ease;
+}
+#notify-msg.show{opacity:1}
 
 /* ════════════════════════════════
    FOOTER
 ════════════════════════════════ */
 footer{
-  padding:2.5rem 1.5rem 5rem;
-  text-align:center;
+  padding:2.5rem 1.5rem 5.5rem;text-align:center;
   border-top:1px solid var(--gold-dim);
 }
-.footer-logo{
-  width:130px;
-  height:auto;
-  margin:0 auto 1.4rem;
-  display:block;
-  opacity:0.35;
-}
+.footer-logo{width:130px;height:auto;margin:0 auto 1.4rem;display:block;opacity:0.3}
 .footer-tagline{
-  font-family:'Cormorant Garamond',serif;
-  font-style:italic;
-  font-size:1rem;
-  color:rgba(237,232,225,0.35);
-  margin-bottom:1.2rem;
+  font-family:'Cormorant Garamond',serif;font-style:italic;
+  font-size:1rem;color:rgba(237,232,225,0.32);margin-bottom:1.2rem;
 }
 .footer-links{
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  gap:1.2rem;
-  margin-bottom:1.2rem;
+  display:flex;align-items:center;justify-content:center;
+  gap:1.2rem;margin-bottom:1.2rem;flex-wrap:wrap;
 }
 .footer-link{
   display:flex;align-items:center;gap:0.4rem;
-  font-size:0.55rem;letter-spacing:0.25em;text-transform:uppercase;
-  color:rgba(237,232,225,0.3);
-  text-decoration:none;
-  transition:color 0.3s;
+  font-size:0.52rem;letter-spacing:0.22em;text-transform:uppercase;
+  color:rgba(237,232,225,0.28);text-decoration:none;transition:color 0.3s;
 }
 .footer-link:active{color:var(--gold)}
-.footer-link svg{width:13px;height:13px;stroke:currentColor;fill:none;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round}
+.footer-link svg{width:12px;height:12px;stroke:currentColor;fill:none;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round}
 .footer-copy{
-  font-size:0.5rem;letter-spacing:0.28em;text-transform:uppercase;
-  color:rgba(237,232,225,0.15);line-height:1.9;
+  font-size:0.48rem;letter-spacing:0.25em;text-transform:uppercase;
+  color:rgba(237,232,225,0.13);line-height:2;
 }
 
 /* ════════════════════════════════
    ANIMATIONS
 ════════════════════════════════ */
-@keyframes fadeUp{
-  from{opacity:0;transform:translateY(14px)}
-  to{opacity:1;transform:translateY(0)}
-}
-@keyframes fadeIn{
-  from{opacity:0}
-  to{opacity:1}
-}
+@keyframes fadeUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
 
-/* bilingual — hide inactive lang */
-[data-lang]{transition:opacity 0.3s}
+/* lang */
 .lang-en [data-lang="es"]{display:none}
 .lang-es [data-lang="en"]{display:none}
 </style>
 </head>
 <body class="lang-es" id="body-root">
 
-<!-- ════════ TORCH OVERLAY ════════ -->
+<!-- ══════ TORCH OVERLAY ══════ -->
 <div id="torch-overlay">
-  <canvas id="fire-canvas"></canvas>
+  <canvas id="glow-canvas"></canvas>
+  <div id="torch-vignette"></div>
   <div id="torch-cd">
-    <img class="torch-logo"
-         src="https://i.ibb.co/Cpw73NF1/Eso.webp"
-         onerror="this.src=''"
-         alt="ESO">
+    <img class="torch-logo" src="https://i.ibb.co/Cpw73NF1/Eso.webp" onerror="this.src=''" alt="ESO">
     <div class="torch-num-row">
       <div class="torch-unit">
         <span class="torch-num" id="t-days">000</span>
@@ -596,27 +478,27 @@ footer{
       <span class="torch-sep">:</span>
       <div class="torch-unit">
         <span class="torch-num" id="t-mins">00</span>
-        <span class="torch-lbl" data-lang="es">Minutos</span>
-        <span class="torch-lbl" data-lang="en">Minutes</span>
+        <span class="torch-lbl" data-lang="es">Min</span>
+        <span class="torch-lbl" data-lang="en">Min</span>
       </div>
       <span class="torch-sep">:</span>
       <div class="torch-unit">
         <span class="torch-num" id="t-secs">00</span>
-        <span class="torch-lbl" data-lang="es">Segundos</span>
-        <span class="torch-lbl" data-lang="en">Seconds</span>
+        <span class="torch-lbl" data-lang="es">Seg</span>
+        <span class="torch-lbl" data-lang="en">Sec</span>
       </div>
     </div>
-    <p class="torch-hint" data-lang="es">Toca para iluminar</p>
-    <p class="torch-hint" data-lang="en">Touch to reveal</p>
+    <p class="torch-hint" data-lang="es">Desliza para iluminar</p>
+    <p class="torch-hint" data-lang="en">Swipe to reveal</p>
   </div>
   <button id="torch-skip" data-lang="es">Continuar →</button>
-  <button id="torch-skip" class="lang-en" style="display:none" data-lang="en">Continue →</button>
+  <button id="torch-skip-en" style="position:absolute;bottom:2rem;right:1.5rem;font-size:0.5rem;letter-spacing:0.38em;text-transform:uppercase;color:rgba(237,232,225,0.22);border:1px solid rgba(237,232,225,0.08);padding:0.5rem 1rem;border-radius:2px;background:transparent;cursor:pointer;z-index:3;" data-lang="en">Continue →</button>
 </div>
 
-<!-- ════════ LANG SWITCHER ════════ -->
+<!-- ══════ LANG ══════ -->
 <button id="lang-btn" aria-label="Switch language">EN / ES</button>
 
-<!-- ════════ SOCIAL FLOATING ════════ -->
+<!-- ══════ SOCIAL ══════ -->
 <div id="social-btns">
   <a class="social-dot wa" href="https://wa.me/573016704233" target="_blank" rel="noopener" aria-label="WhatsApp">
     <svg viewBox="0 0 24 24"><path d="M20.52 3.48A11.93 11.93 0 0 0 12 0C5.37 0 0 5.37 0 12c0 2.12.55 4.18 1.6 6L0 24l6.18-1.62A11.94 11.94 0 0 0 12 24c6.63 0 12-5.37 12-12 0-3.2-1.25-6.21-3.48-8.52zM12 22c-1.85 0-3.67-.5-5.25-1.44l-.38-.22-3.67.96.98-3.58-.25-.38A10 10 0 0 1 2 12C2 6.48 6.48 2 12 2a9.93 9.93 0 0 1 7.07 2.93A9.93 9.93 0 0 1 22 12c0 5.52-4.48 10-10 10zm5.42-7.48c-.3-.15-1.75-.86-2.02-.96-.27-.1-.47-.15-.67.15s-.77.96-.95 1.16c-.17.2-.35.22-.65.07a8.18 8.18 0 0 1-2.4-1.48 9.1 9.1 0 0 1-1.66-2.07c-.17-.3-.02-.46.13-.61.13-.13.3-.35.45-.52.15-.17.2-.3.3-.5.1-.2.05-.37-.02-.52-.07-.15-.67-1.6-.92-2.2-.24-.57-.48-.5-.67-.5-.17 0-.37-.02-.57-.02s-.52.07-.8.37c-.27.3-1.04 1.02-1.04 2.48s1.07 2.88 1.22 3.08c.15.2 2.1 3.2 5.09 4.49.71.3 1.27.49 1.7.63.72.23 1.37.2 1.88.12.57-.09 1.75-.72 2-1.41.25-.7.25-1.3.17-1.41-.07-.12-.27-.2-.57-.35z"/></svg>
@@ -626,12 +508,10 @@ footer{
   </a>
 </div>
 
-<!-- ════════ 1. COUNTDOWN ════════ -->
+<!-- ══════ 1. COUNTDOWN ══════ -->
 <section id="countdown-section">
   <div class="logo-wrap">
-    <img src="https://i.ibb.co/Cpw73NF1/Eso.webp"
-         onerror="this.onerror=null"
-         alt="ESO Cocina Contemporánea">
+    <img src="https://i.ibb.co/Cpw73NF1/Eso.webp" onerror="this.onerror=null" alt="ESO Cocina Contemporánea">
   </div>
   <p class="cd-label">
     <span data-lang="es">Próxima Apertura</span>
@@ -641,7 +521,7 @@ footer{
     <span data-lang="es">Nos vemos en<br><em>Noviembre 2027</em></span>
     <span data-lang="en">See you in<br><em>November 2027</em></span>
   </h2>
-  <div class="countdown" id="countdown">
+  <div class="countdown">
     <div class="cd-unit">
       <span class="cd-num" id="cd-days">000</span>
       <span class="cd-lbl" data-lang="es">Días</span>
@@ -667,10 +547,10 @@ footer{
     </div>
   </div>
   <div class="gold-line"></div>
-  <p class="cd-sub">Cartagena, Colombia &nbsp;✦&nbsp; ESO Cocina Contemporánea</p>
+  <p class="cd-sub">Colombia &nbsp;✦&nbsp; ESO Cocina Contemporánea</p>
 </section>
 
-<!-- ════════ 2. CHEF ════════ -->
+<!-- ══════ 2. CHEF ══════ -->
 <section id="chef-section">
   <div class="chef-header">
     <p class="chef-tag">
@@ -685,34 +565,71 @@ footer{
   </div>
   <div class="chef-row">
     <div class="chef-img-col">
-      <img class="chef-img"
-           src="https://i.ibb.co/6Jw1mLSZ/Chat-GPT-Image-22-jun-2026-07-01-03-p-m.png"
-           onerror="this.onerror=null"
-           alt="Chef Sebastián">
+      <img class="chef-img" src="https://i.ibb.co/6Jw1mLSZ/Chat-GPT-Image-22-jun-2026-07-01-03-p-m.png" onerror="this.onerror=null" alt="Chef Sebastián">
     </div>
     <div class="chef-text-col">
       <div class="chef-divider"></div>
       <div class="chef-body">
         <p data-lang="es">
-          Sebastián es el cocinero y la mente creativa detrás de <em>ESO</em>. Su cocina nace de la memoria del Caribe colombiano y se transforma con técnica contemporánea.
+          Cartagenero de corazón, <em>23 años</em>, con 5 años forjando su camino en la alta cocina de Colombia. Hoy vive en Rionegro, Antioquia, donde afina cada detalle de <em>ESO</em>.
         </p>
         <p data-lang="es">
-          Ingredientes locales, productores pequeños, sabores que nos pertenecen — presentados de forma ligera, moderna y profundamente nuestra.
+          Ha trabajado en cocinas a lo largo y ancho del país — del Pacífico al Caribe, de la capital al eje cafetero — absorbiendo técnicas, ingredientes y memorias que hoy se convierten en platos.
         </p>
         <p data-lang="en">
-          Sebastián is the chef and creative mind behind <em>ESO</em>. His cuisine is rooted in Caribbean Colombian memory, transformed through contemporary technique.
+          Born in Cartagena, <em>23 years old</em>, 5 years shaping his path across Colombia's finest kitchens. Now based in Rionegro, Antioquia, refining every detail of <em>ESO</em>.
         </p>
         <p data-lang="en">
-          Local ingredients, small producers, flavors that belong to us — presented lightly, modernly, and deeply ours.
+          From the Pacific coast to the Caribbean, from Bogotá to the coffee region — each kitchen left its mark in techniques, ingredients, and memories that now become dishes.
         </p>
       </div>
-      <blockquote class="chef-quote" data-lang="es">"Alta cocina con alma local."</blockquote>
-      <blockquote class="chef-quote" data-lang="en">"Fine dining with a local soul."</blockquote>
+      <blockquote class="chef-quote" data-lang="es">"La cocina colombiana tiene todo. Solo falta contarla diferente."</blockquote>
+      <blockquote class="chef-quote" data-lang="en">"Colombian cuisine has everything. It just needs to be told differently."</blockquote>
     </div>
   </div>
 </section>
 
-<!-- ════════ 3. BRAND STORY ════════ -->
+<!-- ══════ 3. COLOMBIA GASTRONOMÍA ══════ -->
+<section id="colombia-section">
+  <p class="col-label">
+    <span data-lang="es">Nuestra Tierra</span>
+    <span data-lang="en">Our Land</span>
+  </p>
+  <h2 class="col-title">
+    <span data-lang="es">Colombia,<br>un territorio de <em>sabor infinito</em></span>
+    <span data-lang="en">Colombia,<br>a land of <em>infinite flavor</em></span>
+  </h2>
+  <div class="col-body">
+    <p data-lang="es">
+      Colombia es uno de los países con mayor biodiversidad gastronómica del planeta. Desde el coco y el ñame de la costa Caribe, hasta la trucha y la papa criolla de las montañas andinas, cada región guarda sabores únicos que pocas cocinas del mundo han sabido reinterpretar con respeto y técnica.
+    </p>
+    <p data-lang="es">
+      Ingredientes como el <em>borojó</em>, el <em>chontaduro</em>, la <em>guanábana</em>, el <em>achiote</em> o los plátanos de mil variedades son parte de un patrimonio que merece ocupar las mesas más sofisticadas del mundo. En ESO, ese es exactamente nuestro propósito.
+    </p>
+    <p data-lang="es">
+      La gastronomía colombiana está viviendo su momento. Chefs jóvenes están apostando por lo local, por los mercados campesinos, por los sabores que siempre estuvieron ahí — esperando ser vistos con ojos nuevos.
+    </p>
+    <p data-lang="en">
+      Colombia is one of the most gastronomically biodiverse countries on earth. From coconut and yam on the Caribbean coast to trout and criolla potato in the Andean highlands, every region holds flavors that few world cuisines have reinterpreted with such respect and skill.
+    </p>
+    <p data-lang="en">
+      Ingredients like <em>borojó</em>, <em>chontaduro</em>, <em>soursop</em>, <em>achiote</em>, and hundreds of plantain varieties are a heritage that deserves a place at the world's most sophisticated tables. At ESO, that is precisely our purpose.
+    </p>
+    <p data-lang="en">
+      Colombian gastronomy is having its moment. Young chefs are betting on the local, on farmers' markets, on flavors that were always there — waiting to be seen with fresh eyes.
+    </p>
+  </div>
+  <div class="col-pills">
+    <span class="col-pill">Caribe</span>
+    <span class="col-pill">Andina</span>
+    <span class="col-pill">Pacífico</span>
+    <span class="col-pill">Amazónica</span>
+    <span class="col-pill">Orinoquía</span>
+    <span class="col-pill">Eje Cafetero</span>
+  </div>
+</section>
+
+<!-- ══════ 4. BRAND STORY ══════ -->
 <section id="story-section">
   <p class="story-label">
     <span data-lang="es">La Historia</span>
@@ -722,21 +639,23 @@ footer{
     Hay cosas que no tienen nombre, pero todos las recordamos.<br>
     Un olor, un sabor, una palabra que se escapa entre los dientes: <em>"eso…"</em><br><br>
     ESO nace de la memoria, del antojo, de la raíz.<br>
-    Pero también de la mirada nueva, del deseo de transformar lo cotidiano en extraordinario.<br><br>
-    En ESO, hacemos <em>alta cocina con alma local</em>. Apostamos por ingredientes colombianos, por productores pequeños, por sabores que nos pertenecen.
+    Pero también de la mirada nueva — del deseo de transformar lo cotidiano en extraordinario.<br><br>
+    Hacemos <em>alta cocina con alma local</em>. Apostamos por ingredientes colombianos, productores pequeños, sabores que nos pertenecen. Los presentamos en formas ligeras, modernas, minimalistas, pero profundamente nuestras.<br><br>
+    Cada plato es un homenaje a lo que fuimos y una visión de lo que podemos ser.
   </p>
   <p class="story-text" data-lang="en">
     Some things have no name, but we all remember them.<br>
     A smell, a taste, a word that slips between your teeth: <em>"that…"</em><br><br>
     ESO is born from memory, craving, and roots.<br>
     But also from a fresh perspective — a desire to transform the everyday into the extraordinary.<br><br>
-    At ESO, we practice <em>fine dining with a local soul</em>. We champion Colombian ingredients, small producers, flavors that belong to us.
+    We practice <em>fine dining with a local soul</em>. We champion Colombian ingredients, small producers, flavors that belong to us. We present them in light, modern, minimalist forms — but deeply ours.<br><br>
+    Every dish is a tribute to who we were and a vision of who we can become.
   </p>
   <p class="story-tagline" data-lang="es">ESO no se explica. Se siente. Se prueba. Se recuerda.</p>
   <p class="story-tagline" data-lang="en">ESO isn't explained. It's felt. Tasted. Remembered.</p>
 </section>
 
-<!-- ════════ 4. VALUES CAROUSEL ════════ -->
+<!-- ══════ 5. VALUES CAROUSEL ══════ -->
 <section id="values-section">
   <p class="values-label">
     <span data-lang="es">Lo que nos define</span>
@@ -747,12 +666,35 @@ footer{
   </div>
 </section>
 
-<!-- ════════ FOOTER ════════ -->
+<!-- ══════ 6. NOTIFY ══════ -->
+<section id="notify-section">
+  <p class="notify-label">
+    <span data-lang="es">Sé el primero en saberlo</span>
+    <span data-lang="en">Be the first to know</span>
+  </p>
+  <h2 class="notify-title">
+    <span data-lang="es">Avísame cuando<br><em>ESO abra</em></span>
+    <span data-lang="en">Notify me when<br><em>ESO opens</em></span>
+  </h2>
+  <p class="notify-sub">
+    <span data-lang="es">Déjanos tu nombre y correo. Te escribiremos el día que abramos las puertas.</span>
+    <span data-lang="en">Leave your name and email. We'll write to you the day we open our doors.</span>
+  </p>
+  <div class="notify-form">
+    <input class="notify-input" type="text" id="notif-name" placeholder="Tu nombre" autocomplete="off">
+    <input class="notify-input" type="email" id="notif-email" placeholder="Tu correo electrónico" autocomplete="off">
+    <textarea class="notify-input" id="notif-msg-field" rows="3" placeholder="Un mensaje para nosotros (opcional)" style="resize:none;font-family:'Montserrat',sans-serif;font-weight:200;font-size:0.8rem;"></textarea>
+    <button class="notify-btn" onclick="sendNotify()">
+      <span data-lang="es">Notifícame &nbsp;✦</span>
+      <span data-lang="en">Notify me &nbsp;✦</span>
+    </button>
+  </div>
+  <p id="notify-msg"></p>
+</section>
+
+<!-- ══════ FOOTER ══════ -->
 <footer>
-  <img class="footer-logo"
-       src="https://i.ibb.co/Cpw73NF1/Eso.webp"
-       onerror="this.onerror=null"
-       alt="ESO">
+  <img class="footer-logo" src="https://i.ibb.co/Cpw73NF1/Eso.webp" onerror="this.onerror=null" alt="ESO">
   <p class="footer-tagline" data-lang="es">ESO no se explica. Se recuerda.</p>
   <p class="footer-tagline" data-lang="en">ESO isn't explained. It's remembered.</p>
   <div class="footer-links">
@@ -760,224 +702,234 @@ footer{
       <svg viewBox="0 0 24 24"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><circle cx="12" cy="12" r="5"/><circle cx="17.5" cy="6.5" r="1.5"/></svg>
       @eso_cocina
     </a>
-    <span style="color:rgba(237,232,225,0.12)">·</span>
+    <span style="color:rgba(237,232,225,0.1)">·</span>
     <a class="footer-link" href="https://wa.me/573016704233" target="_blank" rel="noopener">
       <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12c0 1.9.52 3.67 1.42 5.19L2 22l4.94-1.39A9.93 9.93 0 0 0 12 22c5.52 0 10-4.48 10-10S17.52 2 12 2z"/></svg>
       +57 301 670 4233
     </a>
   </div>
   <p class="footer-copy">
-    © 2026 ESO Cocina Contemporánea<br>
-    Cartagena, Colombia &nbsp;·&nbsp;
+    © 2026 ESO Cocina Contemporánea &nbsp;·&nbsp; Colombia<br>
     <span data-lang="es">Próxima apertura Noviembre 2027</span>
     <span data-lang="en">Opening November 2027</span>
   </p>
 </footer>
 
 <script>
-/* ══ COUNTDOWN SHARED ══ */
-const TARGET = new Date('2027-11-01T20:00:00');
+/* ══ COUNTDOWN ══ */
+const TARGET=new Date('2027-11-01T20:00:00');
 function calcCD(){
-  const diff = TARGET - new Date();
-  if(diff<=0) return null;
-  return{
-    d:Math.floor(diff/86400000),
-    h:Math.floor((diff%86400000)/3600000),
-    m:Math.floor((diff%3600000)/60000),
-    s:Math.floor((diff%60000)/1000)
-  };
+  const diff=TARGET-new Date();
+  if(diff<=0)return null;
+  return{d:Math.floor(diff/86400000),h:Math.floor((diff%86400000)/3600000),m:Math.floor((diff%3600000)/60000),s:Math.floor((diff%60000)/1000)};
 }
 function pad(n,l){return String(n).padStart(l,'0')}
-
 function updateAll(){
-  const t=calcCD();
-  if(!t) return;
-  // main countdown
-  document.getElementById('cd-days').textContent=pad(t.d,3);
-  document.getElementById('cd-hours').textContent=pad(t.h,2);
-  document.getElementById('cd-mins').textContent=pad(t.m,2);
-  document.getElementById('cd-secs').textContent=pad(t.s,2);
-  // torch overlay countdown
-  document.getElementById('t-days').textContent=pad(t.d,3);
-  document.getElementById('t-hours').textContent=pad(t.h,2);
-  document.getElementById('t-mins').textContent=pad(t.m,2);
-  document.getElementById('t-secs').textContent=pad(t.s,2);
+  const t=calcCD();if(!t)return;
+  ['days','hours','mins','secs'].forEach((k,i)=>{
+    const v=[t.d,t.h,t.m,t.s][i], l=[3,2,2,2][i];
+    const el1=document.getElementById('cd-'+k);
+    const el2=document.getElementById('t-'+(['days','hours','mins','secs'][i]));
+    if(el1)el1.textContent=pad(v,l);
+    if(el2)el2.textContent=pad(v,l);
+  });
 }
-updateAll();
-setInterval(updateAll,1000);
+updateAll();setInterval(updateAll,1000);
 
-/* ══ TORCH / FIRE OVERLAY ══ */
+/* ══ TORCH — PREMIUM SOFT GLOW (mobile-first) ══ */
 const overlay   = document.getElementById('torch-overlay');
+const vigEl     = document.getElementById('torch-vignette');
+const gc        = document.getElementById('glow-canvas');
+const gctx      = gc.getContext('2d');
 const skipBtn   = document.getElementById('torch-skip');
-const fireCanvas= document.getElementById('fire-canvas');
-const fCtx      = fireCanvas.getContext('2d');
-let torchDismissed = false;
-let torchX = window.innerWidth/2;
-let torchY = window.innerHeight/2;
-let hasTouched = false;
+const skipBtnEn = document.getElementById('torch-skip-en');
+let dismissed=false, lit=false;
+let tx=window.innerWidth/2, ty=window.innerHeight/2;
+let targetX=tx, targetY=ty;   // lerp targets
+let glowR=0;                   // animated radius
 
-/* Resize canvas */
-function resizeFire(){
-  fireCanvas.width  = window.innerWidth;
-  fireCanvas.height = window.innerHeight;
-}
-resizeFire();
-window.addEventListener('resize', resizeFire);
+function resizeGC(){gc.width=window.innerWidth;gc.height=window.innerHeight}
+resizeGC();window.addEventListener('resize',resizeGC);
 
-/* ── FIRE PARTICLES ── */
-const MAX_P = 90;
-let fireParticles = [];
-
-function spawnFireParticle(x, y){
-  const angle = -Math.PI/2 + (Math.random()-0.5)*0.9; // mostly upward
-  const speed = 0.6 + Math.random()*2.2;
-  fireParticles.push({
-    x, y,
-    vx: Math.cos(angle)*speed*(0.6+Math.random()),
-    vy: Math.sin(angle)*speed - Math.random()*0.5,
-    life: 1,
-    decay: 0.012 + Math.random()*0.022,
-    size: 4 + Math.random()*14,
-    // colour varies from deep red → orange → gold
-    hue: 10 + Math.random()*35,
-    sat: 80 + Math.random()*20,
-  });
-}
-
-function drawFire(){
-  // don't clear fully — leave a dark fade trail
-  fCtx.fillStyle = 'rgba(0,0,0,0.18)';
-  fCtx.fillRect(0,0,fireCanvas.width,fireCanvas.height);
-
-  if(!torchDismissed && hasTouched){
-    // spawn several particles per frame at touch pos + slight wobble
-    for(let i=0;i<4;i++){
-      const ox = (Math.random()-0.5)*18;
-      const oy = (Math.random()-0.5)*10;
-      spawnFireParticle(torchX+ox, torchY+oy);
-    }
-  }
-
-  // trim
-  if(fireParticles.length > MAX_P) fireParticles.splice(0, fireParticles.length-MAX_P);
-
-  fireParticles.forEach((p,i)=>{
-    p.x  += p.vx;
-    p.y  += p.vy;
-    p.vy -= 0.06;           // rise
-    p.vx *= 0.98;           // slight drag
-    p.size *= 0.97;         // shrink
-    p.life -= p.decay;
-
-    if(p.life <= 0){ fireParticles.splice(i,1); return; }
-
-    // colour shifts from red→orange→golden→transparent as life drops
-    const lifeRatio = p.life;
-    const bright = 30 + lifeRatio*50;
-    fCtx.save();
-    fCtx.globalAlpha = lifeRatio * 0.75;
-    fCtx.beginPath();
-
-    // radial gradient for each ember — warm core, transparent edge
-    const grd = fCtx.createRadialGradient(p.x,p.y,0, p.x,p.y, p.size);
-    grd.addColorStop(0,   `hsla(${p.hue+lifeRatio*20},${p.sat}%,${bright+20}%,1)`);
-    grd.addColorStop(0.4, `hsla(${p.hue},${p.sat}%,${bright}%,0.7)`);
-    grd.addColorStop(1,   `hsla(${p.hue-10},60%,20%,0)`);
-    fCtx.fillStyle = grd;
-    fCtx.arc(p.x, p.y, p.size, 0, Math.PI*2);
-    fCtx.fill();
-    fCtx.restore();
-  });
-
-  // Update the CSS vignette position (--tx / --ty in %)
-  const pctX = (torchX/fireCanvas.width*100).toFixed(1)+'%';
-  const pctY = (torchY/fireCanvas.height*100).toFixed(1)+'%';
-  overlay.style.setProperty('--tx', pctX);
-  overlay.style.setProperty('--ty', pctY);
-
-  if(!torchDismissed) requestAnimationFrame(drawFire);
-}
-requestAnimationFrame(drawFire);
-
-/* ── INPUT ── */
-function setTorchPos(x,y){
-  torchX = x; torchY = y;
-  if(!hasTouched){
-    hasTouched = true;
-    overlay.classList.add('touched');
+/* soft glow particles (subtle, premium) */
+const glows=[];
+function addGlow(x,y){
+  if(!lit)return;
+  // spawn soft luminous wisps, not harsh fire
+  for(let i=0;i<2;i++){
+    const a=(Math.random()*Math.PI*2);
+    const spd=0.3+Math.random()*0.9;
+    glows.push({
+      x:x+(Math.random()-0.5)*30,
+      y:y+(Math.random()-0.5)*20,
+      vx:Math.cos(a)*spd*0.4,
+      vy:-Math.abs(Math.sin(a))*spd - 0.3,
+      life:1,
+      decay:0.008+Math.random()*0.014,
+      r:8+Math.random()*22,
+      hue:28+Math.random()*20,   // warm gold range
+    });
   }
 }
 
-overlay.addEventListener('touchmove', e=>{
+function drawGlow(){
+  gctx.clearRect(0,0,gc.width,gc.height);
+
+  /* 1. Main soft radial light at touch point */
+  if(lit){
+    glowR+=(120-glowR)*0.07;   // smooth expand
+    const grad=gctx.createRadialGradient(tx,ty,0,tx,ty,glowR*2.2);
+    grad.addColorStop(0,  'rgba(220,170,80,0.13)');
+    grad.addColorStop(0.35,'rgba(190,130,50,0.07)');
+    grad.addColorStop(0.7, 'rgba(150,90,20,0.03)');
+    grad.addColorStop(1,   'rgba(0,0,0,0)');
+    gctx.fillStyle=grad;
+    gctx.beginPath();
+    gctx.arc(tx,ty,glowR*2.2,0,Math.PI*2);
+    gctx.fill();
+
+    /* inner warm core */
+    const core=gctx.createRadialGradient(tx,ty,0,tx,ty,glowR*0.5);
+    core.addColorStop(0,'rgba(255,210,120,0.18)');
+    core.addColorStop(0.5,'rgba(220,160,60,0.07)');
+    core.addColorStop(1,'rgba(0,0,0,0)');
+    gctx.fillStyle=core;
+    gctx.beginPath();
+    gctx.arc(tx,ty,glowR*0.5,0,Math.PI*2);
+    gctx.fill();
+  }
+
+  /* 2. Soft wisplets */
+  for(let i=glows.length-1;i>=0;i--){
+    const p=glows[i];
+    p.x+=p.vx; p.y+=p.vy; p.vy-=0.012; p.r*=0.985; p.life-=p.decay;
+    if(p.life<=0||p.r<1){glows.splice(i,1);continue}
+    const pg=gctx.createRadialGradient(p.x,p.y,0,p.x,p.y,p.r);
+    pg.addColorStop(0,`hsla(${p.hue},80%,75%,${p.life*0.18})`);
+    pg.addColorStop(0.5,`hsla(${p.hue},70%,55%,${p.life*0.07})`);
+    pg.addColorStop(1,'hsla(0,0%,0%,0)');
+    gctx.fillStyle=pg;
+    gctx.beginPath();gctx.arc(p.x,p.y,p.r,0,Math.PI*2);gctx.fill();
+  }
+
+  /* 3. Update CSS vignette (the dark mask that makes edges black) */
+  if(lit){
+    const px=(tx/gc.width*100).toFixed(1)+'%';
+    const py=(ty/gc.height*100).toFixed(1)+'%';
+    vigEl.style.background=`radial-gradient(circle 180px at ${px} ${py},transparent 0%,rgba(0,0,0,0.4) 55%,rgba(0,0,0,0.93) 100%)`;
+  }
+
+  addGlow(tx,ty);
+  if(!dismissed)requestAnimationFrame(drawGlow);
+}
+requestAnimationFrame(drawGlow);
+
+/* lerp touch position for smoothness */
+function lerpTorch(){
+  tx+=(targetX-tx)*0.12;
+  ty+=(targetY-ty)*0.12;
+  if(!dismissed)requestAnimationFrame(lerpTorch);
+}
+requestAnimationFrame(lerpTorch);
+
+function setPos(x,y){
+  targetX=x; targetY=y;
+  if(!lit){lit=true;overlay.classList.add('lit');}
+}
+
+overlay.addEventListener('touchmove',e=>{
   e.preventDefault();
   const t=e.touches[0];
-  setTorchPos(t.clientX, t.clientY);
+  setPos(t.clientX,t.clientY);
 },{passive:false});
-
-overlay.addEventListener('touchstart', e=>{
+overlay.addEventListener('touchstart',e=>{
   const t=e.touches[0];
-  setTorchPos(t.clientX, t.clientY);
+  setPos(t.clientX,t.clientY);
 },{passive:true});
+overlay.addEventListener('mousemove',e=>setPos(e.clientX,e.clientY));
 
-overlay.addEventListener('mousemove', e=>{
-  setTorchPos(e.clientX, e.clientY);
-});
-
-/* ── DISMISS ── */
-function dismissTorch(){
-  if(torchDismissed) return;
-  torchDismissed = true;
+function dismiss(){
+  if(dismissed)return;
+  dismissed=true;
   overlay.classList.add('fade-out');
-  setTimeout(()=>{ overlay.style.display='none'; },1000);
+  setTimeout(()=>{overlay.style.display='none'},1400);
 }
 
-let tapCount=0;
-overlay.addEventListener('touchend',()=>{ if(++tapCount>=3) dismissTorch(); });
-overlay.addEventListener('click',()=>{ if(++tapCount>=3) dismissTorch(); });
-skipBtn.addEventListener('click',e=>{ e.stopPropagation(); dismissTorch(); });
-window.addEventListener('scroll',()=>{ if(!torchDismissed) dismissTorch(); },{once:true,passive:true});
-setTimeout(()=>dismissTorch(), 11000);
+/* 3 taps or swipe to dismiss */
+let taps=0;
+overlay.addEventListener('touchend',()=>{if(++taps>=3)dismiss()});
+overlay.addEventListener('click',()=>{if(++taps>=3)dismiss()});
+[skipBtn,skipBtnEn].forEach(b=>b&&b.addEventListener('click',e=>{e.stopPropagation();dismiss()}));
+window.addEventListener('scroll',()=>{if(!dismissed)dismiss()},{once:true,passive:true});
+setTimeout(dismiss,13000);
 
-/* ══ LANG SWITCHER ══ */
-const body=document.getElementById('body-root');
+/* ══ LANG ══ */
+const bodyEl=document.getElementById('body-root');
 const langBtn=document.getElementById('lang-btn');
-let currentLang='es';
+let lang='es';
 langBtn.addEventListener('click',()=>{
-  currentLang = currentLang==='es'?'en':'es';
-  body.className = 'lang-'+currentLang;
-  langBtn.textContent = currentLang==='es'?'EN / ES':'ES / EN';
+  lang=lang==='es'?'en':'es';
+  bodyEl.className='lang-'+lang;
+  langBtn.textContent=lang==='es'?'EN / ES':'ES / EN';
+  setTimeout(()=>buildCarousel(lang),10);
+  // swap placeholder lang on inputs
+  document.getElementById('notif-name').placeholder=lang==='es'?'Tu nombre':'Your name';
+  document.getElementById('notif-email').placeholder=lang==='es'?'Tu correo electrónico':'Your email address';
+  document.getElementById('notif-msg-field').placeholder=lang==='es'?'Un mensaje para nosotros (opcional)':'A message for us (optional)';
 });
 
 /* ══ VALUES CAROUSEL ══ */
 const values=[
-  {name:{es:'Excelencia',en:'Excellence'}, svg:'<polyline points="20 6 9 17 4 12"/>'},
-  {name:{es:'Calidad',en:'Quality'}, svg:'<path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>'},
-  {name:{es:'Servicio',en:'Service'}, svg:'<path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>'},
-  {name:{es:'Pasión',en:'Passion'}, svg:'<path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>'},
-  {name:{es:'Raíces',en:'Roots'}, svg:'<path d="M12 22V12M12 12C12 12 7 10 7 5a5 5 0 0 1 10 0c0 5-5 7-5 7z"/>'},
-  {name:{es:'Innovación',en:'Innovation'}, svg:'<circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>'},
-  {name:{es:'Sabor',en:'Flavor'}, svg:'<path d="M18 8h1a4 4 0 0 1 0 8h-1"/><path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"/><line x1="6" y1="1" x2="6" y2="4"/><line x1="10" y1="1" x2="10" y2="4"/><line x1="14" y1="1" x2="14" y2="4"/>'},
-  {name:{es:'Frescura',en:'Freshness'}, svg:'<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>'},
-  {name:{es:'Caribe',en:'Caribbean'}, svg:'<circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>'},
-  {name:{es:'Creatividad',en:'Creativity'}, svg:'<circle cx="13.5" cy="6.5" r="2.5"/><path d="M2 20l7.5-7.5M22 4l-7.5 7.5M9.5 12.5L12 17l3-3-3.5-1.5z"/>'},
+  {es:'Excelencia',en:'Excellence',  svg:'<polyline points="20 6 9 17 4 12"/>'},
+  {es:'Calidad',   en:'Quality',     svg:'<path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>'},
+  {es:'Servicio',  en:'Service',     svg:'<path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/>'},
+  {es:'Pasión',    en:'Passion',     svg:'<path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>'},
+  {es:'Raíces',    en:'Roots',       svg:'<line x1="12" y1="22" x2="12" y2="11"/><path d="M12 11C12 11 7 9 7 4a5 5 0 0 1 10 0c0 5-5 7-5 7z"/>'},
+  {es:'Innovación',en:'Innovation',  svg:'<circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/>'},
+  {es:'Sabor',     en:'Flavor',      svg:'<path d="M18 8h1a4 4 0 0 1 0 8h-1"/><path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"/><line x1="6" y1="1" x2="6" y2="4"/><line x1="10" y1="1" x2="10" y2="4"/><line x1="14" y1="1" x2="14" y2="4"/>'},
+  {es:'Frescura',  en:'Freshness',   svg:'<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>'},
+  {es:'Caribe',    en:'Caribbean',   svg:'<circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>'},
+  {es:'Creatividad',en:'Creativity', svg:'<path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/>'},
+  {es:'Herencia',  en:'Heritage',    svg:'<path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/>'},
+  {es:'Territorio',en:'Territory',   svg:'<polygon points="3 11 22 2 13 21 11 13 3 11"/>'},
 ];
-
 const track=document.getElementById('carouselTrack');
-function buildCarousel(lang){
+function buildCarousel(l){
   track.innerHTML='';
   [...values,...values].forEach(v=>{
-    const chip=document.createElement('div');
-    chip.className='value-chip';
-    chip.innerHTML=`<svg viewBox="0 0 24 24">${v.svg}</svg><span class="value-name">${v.name[lang]||v.name.es}</span>`;
-    track.appendChild(chip);
+    const c=document.createElement('div');
+    c.className='value-chip';
+    c.innerHTML=`<svg viewBox="0 0 24 24">${v.svg}</svg><span class="value-name">${v[l]||v.es}</span>`;
+    track.appendChild(c);
   });
 }
 buildCarousel('es');
 
-// Re-build carousel on lang switch
-langBtn.addEventListener('click',()=>{
-  setTimeout(()=>buildCarousel(currentLang),10);
-});
+/* ══ NOTIFY FORM — sends via mailto ══ */
+function sendNotify(){
+  const name  = document.getElementById('notif-name').value.trim();
+  const email = document.getElementById('notif-email').value.trim();
+  const msg   = document.getElementById('notif-msg-field').value.trim();
+  const el    = document.getElementById('notify-msg');
+  const isEs  = lang==='es';
+
+  if(!email||!email.includes('@')){
+    el.textContent=isEs?'Por favor ingresa un correo válido.':'Please enter a valid email.';
+    el.style.color='#c08070';el.classList.add('show');
+    setTimeout(()=>el.classList.remove('show'),3500);return;
+  }
+
+  const subject=encodeURIComponent('ESO — Notificación de apertura');
+  const body=encodeURIComponent(
+    `Nombre: ${name||'(no indicado)'}\nCorreo: ${email}\nMensaje: ${msg||'(ninguno)'}\n\n— Enviado desde la web de ESO`
+  );
+  window.location.href=`mailto:sebastianlagastronomia@gmail.com?subject=${subject}&body=${body}`;
+
+  el.textContent=isEs?'✦ Te avisaremos cuando ESO abra sus puertas.':'✦ We\'ll reach out when ESO opens its doors.';
+  el.style.color='var(--gold)';el.classList.add('show');
+  ['notif-name','notif-email','notif-msg-field'].forEach(id=>{document.getElementById(id).value=''});
+  setTimeout(()=>el.classList.remove('show'),5000);
+}
 </script>
 </body>
 </html>
